@@ -208,7 +208,7 @@
       .logo-container img {
         height: 100px;
       }
-      input, button, .checkbox-group, #employee-list, .image-upload-section { /* Hide image upload in print */
+      input, button, .checkbox-group, #employee-list, .image-upload-section { /* Hide form elements in print */
         display: none !important;
       }
       .summary-box {
@@ -453,6 +453,11 @@
       }
     }
 
+    // Function to handle printing
+    function printSummary() {
+        window.print();
+    }
+
     // Function to create and show the options popup
     function showOptionsPopup() {
         const overlay = document.createElement('div');
@@ -468,6 +473,14 @@
             document.body.removeChild(overlay);
         };
         popup.appendChild(shareButton);
+
+        const printButton = document.createElement('button'); // New Print Button
+        printButton.textContent = 'Drucken';
+        printButton.onclick = () => {
+            printSummary();
+            document.body.removeChild(overlay);
+        };
+        popup.appendChild(printButton);
 
         const restartButton = document.createElement('button');
         restartButton.textContent = 'Von vorne beginnen';
