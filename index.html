@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Krankmeldung</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .form-container {
+      width: 90%;
+      margin: auto;
+      padding: 10px;
+      position: relative;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    /* Einheitliche Größe für Textfelder, Datum-/Zeit-Eingaben und Buttons */
+    /* Basis-Styling für alle betroffenen Elemente */
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    button {
+      width: 100%; /* Volle Breite im Container */
+      max-width: 400px; /* Maximale Breite für größere Bildschirme */
+      height: 60px; /* Einheitliche Höhe */
+      padding: 5px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      font-size: 24px;
+      border: 1px solid #ccc; /* Standard-Rand für Input-Felder */
+      border-radius: 4px; /* Leichter Rand für Input-Felder */
+      background-color: #f0f0f0; /* Hintergrundfarbe wie im Bild */
+      color: #000; /* Textfarbe */
+    }
+
+    /* Spezifisches Styling für Datum- und Zeit-Inputs, um Browser-Standard zu überschreiben */
+    input[type="date"],
+    input[type="time"] {
+      -webkit-appearance: none; /* Für Safari/Chrome */
+      -moz-appearance: none;    /* Für Firefox */
+      appearance: none;         /* Standard */
+      padding-right: 10px; /* Platz für Pfeil/Icon, falls der Browser es rendert */
+      text-align: center; /* Text in der Mitte */
+      line-height: 60px; /* Vertikale Zentrierung des Textes */
+      color: black; /* Schwarz wie im Bild */
+      font-weight: bold; /* Fett wie im Bild */
+    }
+
+    /* Styling für die grünen Buttons */
+    button {
+      background-color: #45a049;
+      color: white;
+      border: none; /* Buttons haben keinen Rand */
+      cursor: pointer;
+      text-align: center; /* Textzentrierung für Buttons */
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column; /* Checkboxen untereinander */
+      margin-bottom: 10px;
+    }
+    .checkbox-group div { /* Container für jede Checkbox-Label-Gruppe */
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px; /* Abstand zwischen den Checkbox-Zeilen */
+    }
+    .checkbox-group label {
+      margin-left: 5px;
+      margin-bottom: 0; /* Kein zusätzlicher Abstand durch Label-Regel */
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: 30px;
+      height: 30px;
+      margin-right: 5px; /* Abstand zwischen Checkbox und Label */
+    }
+    .hidden {
+      display: none;
+    }
+
+    .summary-box {
+      border: 2px solid #000;
+      background-color: #e8d3d2;
+      padding: 15px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+    .summary-box p {
+      margin: 5px 0;
+    }
+    .summary-box span {
+      display: inline-block;
+      width: 150px;
+      font-weight: normal;
+    }
+    .summary-box b {
+      font-weight: bold;
+    }
+    .logo-container {
+      position: absolute;
+      top: -20px;
+      right: 10px;
+    }
+    .logo-container img {
+      height: 80px;
+    }
+    /* Diese Liste wird nicht mehr benötigt, aber für die Stil-Konsistenz beibehalten */
+    #employee-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 5px;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      background-color: white;
+      position: absolute;
+      z-index: 1000;
+      display: none;
+    }
+    #employee-list li {
+      padding: 10px;
+      cursor: pointer;
+    }
+    #employee-list li:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* Styles for the new image upload section */
+    .image-upload-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+
+    #uploaded-image {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 10px auto;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    @media print {
+      body {
+        margin: 0;
+        padding: 0;
+        font-size: 12pt;
+      }
+      .form-container {
+        width: 100%;
+        padding: 20mm;
+        box-sizing: border-box;
+      }
+      .logo-container {
+        position: absolute;
+        top: 10mm;
+        right: 10mm;
+      }
+      .logo-container img {
+        height: 100px;
+      }
+      input, button, .checkbox-group, #employee-list, .image-upload-section { /* Hide image upload in print */
+        display: none !important;
+      }
+      .summary-box {
+        border: 2px solid #000;
+        padding: 15mm;
+        width: 100%;
+        font-size: 12pt;
+        text-align: left;
+      }
+      h1, h2 {
+        text-align: center;
+      }
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="logo-container">
+      <img src="https://images.seeklogo.com/logo-png/54/2/motherson-logo-png_seeklogo-544537.png" alt="Firmenlogo" />
+    </div>
+    <h1>Krankmeldung</h1>
+    <form id="sick-leave-form">
+      <div class="form-group" id="step-0">
+        <h2>Ihre Informationen</h2>
+        <label for="user-lastname">Name:</label>
+        <input type="text" id="user-lastname" name="user-lastname" required />
+        <label for="user-firstname">Vorname:</label>
+        <input type="text" id="user-firstname" name="user-firstname" required />
+        <label for="user-pn">Personalnummer:</label>
+        <input type="text" id="user-pn" name="user-pn" required />
+        <button type="button" onclick="saveUserInfoAndNextStep(1)">Start</button>
+      </div>
+
+      <div class="form-group hidden" id="step-1">
+        <label for="report-date">Krankmeldung bei SMP erfolgte am:</label>
+        <input type="date" id="report-date" name="report-date" />
+        <label for="report-time">um:</label>
+        <input type="time" id="report-time" name="report-time" />
+        <button type="button" onclick="validateStep1AndNext(2)">Weiter</button>
+        <button type="button" onclick="prevStep(0)">Zurück</button>
+
+        <div class="image-upload-section">
+          <p style="text-align: center; margin: 20px 0;">--- ODER ---</p>
+          <button type="button" onclick="triggerFileUpload()">Krankmeldung fotografieren / hochladen</button>
+          <input type="file" id="sick-note-image" accept="image/*" capture="environment" style="display: none;" onchange="handleImageUpload(event)">
+          <img id="uploaded-image" src="" alt="Hochgeladenes Bild der Krankmeldung" style="display: none;">
+          <button type="button" id="send-image-button" class="hidden" onclick="sendSickNoteImage()">Bild senden</button>
+        </div>
+      </div>
+
+      <div class="form-group hidden" id="step-2">
+        <label for="duration">Dauer der Krankheit:</label>
+        <input type="date" id="duration-start" name="duration-start" required /> bis
+        <input type="date" id="duration-end" name="duration-end" required />
+        <button type="button" onclick="nextStep(3)">Weiter</button>
+        <button type="button" onclick="prevStep(1)">Zurück</button>
+      </div>
+      <div class="form-group hidden" id="step-3">
+        <div class="checkbox-group">
+          <div>
+            <input type="checkbox" id="first-certification" name="certification-type" value="Erstbescheinigung" />
+            <label for="first-certification">Erstbescheinigung</label>
+          </div>
+          <div>
+            <input type="checkbox" id="follow-up-certification" name="certification-type" value="Folgebescheinigung" />
+            <label for="follow-up-certification">Folgebescheinigung</label>
+          </div>
+        </div>
+        <button type="button" onclick="nextStep(4)">Weiter</button>
+        <button type="button" onclick="prevStep(2)">Zurück</button>
+      </div>
+      <div class="form-group hidden" id="step-4">
+        <label for="doctor-visit">Der Arztbesuch war am:</label>
+        <input type="date" id="doctor-visit" name="doctor-visit" required />
+        <button type="button" onclick="nextStep(5)">Weiter</button>
+        <button type="button" onclick="prevStep(3)">Zurück</button>
+      </div>
+      <div class="form-group hidden" id="step-5">
+        <h2>Informationen des Mitarbeiters</h2>
+        <div class="summary-box" id="summary"></div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    let currentUser = {};
+    let sickNoteImageData = null; // To store the base64 image data
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+            document.getElementById('user-lastname').value = currentUser.lastname;
+            document.getElementById('user-firstname').value = currentUser.firstname;
+            document.getElementById('user-pn').value = currentUser.pn;
+            nextStep(1);
+        } else {
+            nextStep(0);
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registriert', reg))
+                .catch(err => console.error('Service Worker Registrierung fehlgeschlagen', err));
+        }
+    });
+
+    function saveUserInfoAndNextStep(step) {
+      const lastname = document.getElementById('user-lastname').value;
+      const firstname = document.getElementById('user-firstname').value;
+      const pn = document.getElementById('user-pn').value;
+
+      if (!lastname || !firstname || !pn) {
+        alert('Bitte füllen Sie alle Felder aus.');
+        return;
+      }
+
+      currentUser = { lastname, firstname, pn };
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      nextStep(step);
+    }
+
+    function nextStep(step) {
+      const formSteps = document.querySelectorAll('.form-group');
+      formSteps.forEach(s => s.classList.add('hidden'));
+      document.getElementById('step-' + step).classList.remove('hidden');
+
+      if (step === 5) {
+        showSummary();
+      }
+    }
+
+    function prevStep(step) {
+      const formSteps = document.querySelectorAll('.form-group');
+      formSteps.forEach(s => s.classList.add('hidden'));
+      document.getElementById('step-' + step).classList.remove('hidden');
+      // Reset image upload state if going back from step 1
+      if (step === 0) {
+        document.getElementById('sick-note-image').value = '';
+        document.getElementById('uploaded-image').style.display = 'none';
+        document.getElementById('send-image-button').classList.add('hidden');
+        sickNoteImageData = null;
+      }
+    }
+
+    // --- New functions for image upload ---
+
+    function triggerFileUpload() {
+      document.getElementById('sick-note-image').click();
+    }
+
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const imgElement = document.getElementById('uploaded-image');
+          imgElement.src = e.target.result;
+          imgElement.style.display = 'block';
+          sickNoteImageData = e.target.result; // Store the image data
+
+          // Show the send button for the image
+          document.getElementById('send-image-button').classList.remove('hidden');
+
+          // Disable form fields when an image is uploaded
+          document.getElementById('report-date').disabled = true;
+          document.getElementById('report-time').disabled = true;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        document.getElementById('uploaded-image').style.display = 'none';
+        document.getElementById('send-image-button').classList.add('hidden');
+        sickNoteImageData = null;
+        // Re-enable form fields if no image is selected
+        document.getElementById('report-date').disabled = false;
+        document.getElementById('report-time').disabled = false;
+      }
+    }
+
+    function sendSickNoteImage() {
+      if (sickNoteImageData) {
+        // Here you would typically send the sickNoteImageData (base64 string)
+        // to a server. For this example, we'll just log it and show a confirmation.
+        console.log('Krankmeldung Bild wird gesendet:', sickNoteImageData);
+        alert('Krankmeldung Bild erfolgreich gesendet! (Dies ist eine Simulation, kein tatsächlicher Versand).');
+
+        // After sending, you might want to reset the form or redirect
+        // For now, let's just show a simplified summary for image submission.
+        showImageSummary();
+        nextStep(5); // Move to a summary step
+      } else {
+        alert('Bitte wählen Sie zuerst ein Bild aus oder nehmen Sie ein Foto auf.');
+      }
+    }
+
+    function validateStep1AndNext(step) {
+      const reportDate = document.getElementById("report-date").value;
+      const reportTime = document.getElementById("report-time").value;
+
+      if (!sickNoteImageData && (!reportDate || !reportTime)) {
+        alert('Bitte füllen Sie die Felder für Datum und Uhrzeit aus ODER laden Sie ein Bild der Krankmeldung hoch.');
+        return;
+      }
+
+      if (sickNoteImageData && (reportDate || reportTime)) {
+        alert('Bitte wählen Sie entweder die Formularfelder aus ODER laden Sie ein Bild hoch, nicht beides.');
+        return;
+      }
+
+      if (sickNoteImageData) {
+          sendSickNoteImage(); // Treat image submission as completing this step
+      } else {
+          nextStep(step);
+      }
+    }
+
+    function showSummary() {
+      const summaryBox = document.getElementById("summary");
+      if (sickNoteImageData) {
+        summaryBox.innerHTML = `
+          <p><span>Name:</span> <b>${currentUser.lastname}</b></p>
+          <p><span>Vorname:</span> <b>${currentUser.firstname}</b></p>
+          <p><span>Personalnummer:</span> <b>${currentUser.pn}</b></p>
+          <p><span>Krankmeldung:</span> <b>Als Bild gesendet</b></p>
+          <img src="${sickNoteImageData}" alt="Hochgeladenes Bild der Krankmeldung" style="max-width: 100%; height: auto; margin-top: 10px;">
+          <p style="margin-top: 15px;">Bitte beachten Sie: Die Details aus dem Formular wurden nicht erfasst, da ein Bild hochgeladen wurde.</p>
+        `;
+      } else {
+        const reportDate = document.getElementById("report-date").value.split("-").reverse().join(".");
+        const reportTime = document.getElementById("report-time").value;
+        const durationStart = document.getElementById("duration-start").value.split("-").reverse().join(".");
+        const durationEnd = document.getElementById("duration-end").value.split("-").reverse().join(".");
+        const firstCertification = document.getElementById("first-certification").checked ? "✓" : "-";
+        const followUpCertification = document.getElementById("follow-up-certification").checked ? "✓" : "-";
+        const doctorVisit = document.getElementById("doctor-visit").value.split("-").reverse().join(".");
+
+        summaryBox.innerHTML = `
+          <p><span>Name:</span> <b>${currentUser.lastname}</b></p>
+          <p><span>Vorname:</span> <b>${currentUser.firstname}</b></p>
+          <p><span>Personalnummer:</span> <b>${currentUser.pn}</b></p>
+          <p><span>Krankmeldung erfolgte am:</span> <b>${reportDate} / ${reportTime}</b></p>
+          <p><span>Dauer von:</span> <b>${durationStart}</b></p>
+          <p><span>bis:</span> <b>${durationEnd}</b></p>
+          <p><span>Erstbescheinigung:</span> <b>${firstCertification}</b></p>
+          <p><span>Folgebescheinigung:</span> <b>${followUpCertification}</b></p>
+          <p><span>Arztbesuch am:</span> <b>${doctorVisit}</b></p>
+        `;
+      }
+    }
+
+    function showImageSummary() {
+      const summaryBox = document.getElementById("summary");
+      summaryBox.innerHTML = `
+          <p><span>Name:</span> <b>${currentUser.lastname}</b></p>
+          <p><span>Vorname:</span> <b>${currentUser.firstname}</b></p>
+          <p><span>Personalnummer:</span> <b>${currentUser.pn}</b></p>
+          <p><span>Krankmeldung:</span> <b>Als Bild gesendet</b></p>
+          <img src="${sickNoteImageData}" alt="Hochgeladenes Bild der Krankmeldung" style="max-width: 100%; height: auto; margin-top: 10px;">
+          <p style="margin-top: 15px;">**Bitte beachten Sie:** Die Details aus dem Formular wurden nicht erfasst, da ein Bild hochgeladen wurde.</p>
+        `;
+    }
+
+  </script>
+</body>
+</html>
