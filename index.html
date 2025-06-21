@@ -101,17 +101,27 @@
       width: 100%;
       max-width: 400px;
       box-sizing: border-box;
+      /* Flexbox für Zentrierung der Box */
+      display: flex; /* Macht die Box selbst zum Flex-Container */
+      flex-direction: column; /* Elemente untereinander anordnen */
+      align-items: flex-start; /* Elemente linksbündig ausrichten */
     }
     .summary-box p {
       margin: 5px 0;
+      /* Ensure p elements take full width to allow content alignment within them */
+      width: 100%;
     }
-    .summary-box span {
+    .summary-box p span { /* Specific styling for spans within p for alignment */
       display: inline-block;
       width: 150px;
       font-weight: normal;
+      text-align: left; /* Ensure text in span is left-aligned */
     }
-    .summary-box b {
+    .summary-box p b { /* Specific styling for bold text within p */
       font-weight: bold;
+      display: inline-block; /* Ensure bold text is also inline-block to stay next to span */
+      text-align: left; /* Ensure text in bold is left-aligned */
+      word-break: break-word; /* Prevents long words from overflowing */
     }
     .logo-container {
       position: absolute;
@@ -192,8 +202,7 @@
     @media print {
       body {
         font-size: 12pt;
-        /* Zurück auf 50px für 1cm nach unten */
-        margin-top: 50px;
+        margin-top: 50px; /* Zurück auf 50px für 1cm nach unten */
       }
 
       /* Verstecke alle Formularschritte außer der Zusammenfassung */
@@ -227,7 +236,8 @@
         right: 10px;
       }
       .logo-container img {
-        height: 80px;
+        height: 80px; /* Behalte die Bildschirmgröße bei */
+        max-width: 200px; /* Limit image width on print */
       }
 
       /* Die Zusammenfassungsbox für den Druck anpassen */
@@ -238,17 +248,32 @@
         width: 100%;
         max-width: 500px; /* Kleinere maximale Breite */
         box-sizing: border-box;
-        text-align: left;
+        text-align: left; /* Behalte dies für den Inhalt */
         margin-top: 20px;
-        margin-left: auto;
-        margin-right: auto;
+        margin-left: auto; /* Horizontal zentrieren */
+        margin-right: auto; /* Horizontal zentrieren */
         font-size: 10pt; /* Schriftgröße reduziert */
+
+        /* Neue Flexbox-Eigenschaften für die Zentrierung des Inhalts, aber linksbündig */
+        display: flex;
+        flex-direction: column; /* Elemente untereinander */
+        align-items: flex-start; /* Inhalte linksbündig */
       }
       .summary-box p {
         margin: 3px 0; /* Vertikaler Abstand zwischen den Absätzen reduziert */
+        width: 100%; /* Wichtig, damit span und b richtig nebeneinander stehen */
       }
-      .summary-box span {
+      .summary-box p span {
+        display: inline-block;
         width: 120px; /* Breite der Labels reduziert */
+        font-weight: normal;
+        text-align: left;
+      }
+      .summary-box p b {
+        font-weight: bold;
+        display: inline-block;
+        text-align: left;
+        word-break: break-word; /* Wichtig, um lange Texte umzubrechen */
       }
       .summary-box img {
           max-width: 80%; /* Bildgröße im Druck verkleinern */
@@ -259,7 +284,6 @@
       /* Überschriften-Zentrierung beibehalten, falls gewünscht */
       h1, h2 {
         text-align: center;
-        /* Schriftgröße der Überschriften beim Drucken anpassen, falls nötig */
         font-size: 18pt; /* Oder eine andere passende Größe */
         margin-bottom: 5px; /* Abstand unter Überschriften reduzieren */
       }
