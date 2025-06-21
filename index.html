@@ -90,7 +90,7 @@
       margin-right: 5px; /* Abstand zwischen Checkbox und Label */
     }
     .hidden {
-      display: none;
+      display: none !important; /* Wichtig für das Ausblenden */
     }
 
     .summary-box {
@@ -102,25 +102,28 @@
       max-width: 400px;
       box-sizing: border-box;
       /* Flexbox für Zentrierung der Box */
-      display: flex; /* Macht die Box selbst zum Flex-Container */
+      display: flex;
       flex-direction: column; /* Elemente untereinander anordnen */
-      align-items: flex-start; /* Elemente linksbündig ausrichten */
+      align-items: center; /* Zentriert die Box horizontal */
     }
     .summary-box p {
       margin: 5px 0;
-      /* Ensure p elements take full width to allow content alignment within them */
-      width: 100%;
+      width: 100%; /* p-Elemente nehmen die volle Breite ein */
+      display: flex; /* p wird zum Flex-Container */
+      justify-content: flex-start; /* Elemente am Start der Zeile ausrichten */
+      align-items: baseline; /* Texte an der Grundlinie ausrichten */
+      flex-wrap: wrap; /* Erlaubt Umbruch, wenn der Text zu lang ist */
     }
     .summary-box p span { /* Specific styling for spans within p for alignment */
-      display: inline-block;
-      width: 150px;
+      display: block; /* Span nimmt ganze Breite für sich ein, wenn allein */
+      min-width: 150px; /* Minimale Breite für das Label */
       font-weight: normal;
-      text-align: left; /* Ensure text in span is left-aligned */
+      text-align: left;
     }
     .summary-box p b { /* Specific styling for bold text within p */
       font-weight: bold;
-      display: inline-block; /* Ensure bold text is also inline-block to stay next to span */
-      text-align: left; /* Ensure text in bold is left-aligned */
+      flex-grow: 1; /* Der fette Text nimmt den restlichen verfügbaren Platz ein */
+      text-align: left;
       word-break: break-word; /* Prevents long words from overflowing */
     }
     .logo-container {
@@ -262,16 +265,20 @@
       .summary-box p {
         margin: 3px 0; /* Vertikaler Abstand zwischen den Absätzen reduziert */
         width: 100%; /* Wichtig, damit span und b richtig nebeneinander stehen */
+        display: flex; /* p wird zum Flex-Container */
+        justify-content: flex-start; /* Elemente am Start der Zeile ausrichten */
+        align-items: baseline; /* Texte an der Grundlinie ausrichten */
+        flex-wrap: wrap; /* Erlaubt Umbruch, wenn der Text zu lang ist */
       }
       .summary-box p span {
-        display: inline-block;
-        width: 120px; /* Breite der Labels reduziert */
+        display: block;
+        min-width: 120px; /* Breite der Labels reduziert */
         font-weight: normal;
         text-align: left;
       }
       .summary-box p b {
         font-weight: bold;
-        display: inline-block;
+        flex-grow: 1;
         text-align: left;
         word-break: break-word; /* Wichtig, um lange Texte umzubrechen */
       }
@@ -332,7 +339,7 @@
         <div class="image-upload-section">
           <p style="text-align: center; margin: 20px 0;">--- ODER ---</p>
           <button type="button" onclick="triggerFileUpload()">Krankmeldung fotografieren / hochladen</button>
-          <input type="file" id="sick-note-image" accept="image/*" capture="environment" style="display: none;" onchange="handleImageUpload(event)">
+          <input type="file" id="sick-note-image" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
           <img id="uploaded-image" src="" alt="Hochgeladenes Bild der Krankmeldung" style="display: none;">
           <button type="button" id="goToSummaryFromImage" class="hidden" onclick="nextStep(5)">Zur Zusammenfassung</button>
         </div>
@@ -372,6 +379,14 @@
     </form>
   </div>
 
+  <div class="overlay hidden" id="image-options-overlay">
+    <div class="options-popup">
+      <button type="button" id="take-photo-btn">Neues Foto aufnehmen</button>
+      <button type="button" id="choose-from-gallery-btn">Aus Galerie wählen</button>
+      <button type="button" id="cancel-image-upload-btn">Abbrechen</button>
+    </div>
+  </div>
+
   <script>
     let currentUser = {};
     let sickNoteImageData = null; // To store the base64 image data
@@ -401,6 +416,25 @@
                 return;
             }
             showOptionsPopup();
+        });
+
+        // Neue Event-Listener für das Bildoptions-Pop-up
+        document.getElementById('take-photo-btn').addEventListener('click', () => {
+            const input = document.getElementById('sick-note-image');
+            input.setAttribute('capture', 'environment'); // Kamera öffnen
+            input.click();
+            document.getElementById('image-options-overlay').classList.add('hidden'); // Pop-up schließen
+        });
+
+        document.getElementById('choose-from-gallery-btn').addEventListener('click', () => {
+            const input = document.getElementById('sick-note-image');
+            input.removeAttribute('capture'); // Galerie öffnen
+            input.click();
+            document.getElementById('image-options-overlay').classList.add('hidden'); // Pop-up schließen
+        });
+
+        document.getElementById('cancel-image-upload-btn').addEventListener('click', () => {
+            document.getElementById('image-options-overlay').classList.add('hidden'); // Pop-up schließen
         });
     });
 
@@ -448,7 +482,7 @@
     // --- New functions for image upload ---
 
     function triggerFileUpload() {
-      document.getElementById('sick-note-image').click();
+      document.getElementById('image-options-overlay').classList.remove('hidden');
     }
 
     function handleImageUpload(event) {
