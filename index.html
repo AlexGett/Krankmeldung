@@ -191,10 +191,9 @@
 
     @media print {
       body {
-        /* Standard-Schriftgröße für den Druck, falls nicht anders angegeben */
         font-size: 12pt;
-        /* Oberen Rand des gesamten Body optimiert für eine Seite */
-        margin-top: 20px; /* Weniger als 50px, um Platz zu sparen */
+        /* Zurück auf 50px für 1cm nach unten */
+        margin-top: 50px;
       }
 
       /* Verstecke alle Formularschritte außer der Zusammenfassung */
@@ -215,54 +214,67 @@
       /* Der Formular-Container soll sich an den Druckbereich anpassen */
       .form-container {
         width: 100%;
-        margin: 0; /* Kein automatischer Rand mehr */
-        padding: 0; /* Standard-Padding entfernen, da summary-box sein eigenes hat */
-        position: relative; /* Behalte die Position bei für das Logo */
+        margin: 0;
+        padding: 0;
+        position: relative;
         box-sizing: border-box;
       }
 
       /* Das Logo soll seine ursprüngliche Position und Größe beibehalten */
       .logo-container {
-        position: absolute; /* Behalte die absolute Position bei */
-        top: -70px; /* Behalte die Position bei */
-        right: 10px; /* Behalte die Position bei */
+        position: absolute;
+        top: -70px;
+        right: 10px;
       }
       .logo-container img {
-        height: 80px; /* Behalte die Bildschirmgröße bei */
+        height: 80px;
       }
 
-      /* Die Zusammenfassungsbox soll ihre Bildschirmbreite und Polsterung beibehalten */
+      /* Die Zusammenfassungsbox für den Druck anpassen */
       .summary-box {
         border: 2px solid #000;
         background-color: #e8d3d2;
-        padding: 15px 30px; /* Deine gewünschte Polsterung für den Druck */
-        width: 100%; /* Nimm die volle Breite des Containers ein */
-        max-width: 95%; /* Flexiblerer Wert, um den verfügbaren Platz auszunutzen */
+        padding: 10px 20px; /* Padding reduziert, um Platz zu sparen */
+        width: 100%;
+        max-width: 500px; /* Kleinere maximale Breite */
         box-sizing: border-box;
         text-align: left;
-        margin-top: 20px; /* Behalte den oberen Rand bei */
-        margin-left: auto; /* Zentriere die Box horizontal */
-        margin-right: auto; /* Zentriere die Box horizontal */
+        margin-top: 20px;
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 10pt; /* Schriftgröße reduziert */
       }
+      .summary-box p {
+        margin: 3px 0; /* Vertikaler Abstand zwischen den Absätzen reduziert */
+      }
+      .summary-box span {
+        width: 120px; /* Breite der Labels reduziert */
+      }
+      .summary-box img {
+          max-width: 80%; /* Bildgröße im Druck verkleinern */
+          height: auto;
+      }
+
 
       /* Überschriften-Zentrierung beibehalten, falls gewünscht */
       h1, h2 {
         text-align: center;
+        /* Schriftgröße der Überschriften beim Drucken anpassen, falls nötig */
+        font-size: 18pt; /* Oder eine andere passende Größe */
+        margin-bottom: 5px; /* Abstand unter Überschriften reduzieren */
       }
 
       /* Papierformat und Ränder für den Druck */
       @page {
         size: A4;
         margin: 10mm; /* Standard-Ränder für A4 */
-      }
-
-      /* Optional: Jegliche Art von Fußzeile/Paginierung entfernen (Standard-Browser-Features) */
-      @page {
-        /* Dies könnte helfen, Browser-spezifische Kopf- und Fußzeilen zu reduzieren,
-           aber vollständiges Entfernen hängt stark vom Browser ab. */
-        marks: none; /* Entfernt Schnittmarken und Registriermarken */
-        /* Eine gängige Methode, um Footer zu unterdrücken, ist, diese unsichtbar zu machen,
-           aber das funktioniert nur für Inhalte, die du kontrollierst. */
+        /* Versuch, Header und Footer (inkl. URL) zu entfernen, abhängig vom Browser */
+        @top-left { content: ""; }
+        @top-center { content: ""; }
+        @top-right { content: ""; }
+        @bottom-left { content: ""; }
+        @bottom-center { content: ""; }
+        @bottom-right { content: ""; }
       }
     }
   </style>
