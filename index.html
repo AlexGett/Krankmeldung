@@ -283,8 +283,14 @@
         word-break: break-word; /* Wichtig, um lange Texte umzubrechen */
       }
       .summary-box img {
-          max-width: 80%; /* Bildgröße im Druck verkleinern */
-          height: auto;
+          max-width: 100%; /* Bildgröße im Druck verkleinern, aber 100% der Box-Breite nutzen */
+          max-height: 200mm; /* Maximale Höhe des Bildes festlegen, z.B. 200mm (~80% einer A4-Seite) */
+          width: auto; /* Breite automatisch anpassen, um Proportionen zu erhalten */
+          height: auto; /* Höhe automatisch anpassen, um Proportionen zu erhalten */
+          object-fit: contain; /* Stellt sicher, dass das gesamte Bild sichtbar ist und nicht abgeschnitten wird */
+          page-break-before: auto; /* Verhindert einen Seitenumbruch direkt vor dem Bild */
+          page-break-after: avoid; /* Versucht einen Seitenumbruch nach dem Bild zu vermeiden, falls noch Platz ist */
+          page-break-inside: avoid; /* Verhindert, dass das Bild selbst umgebrochen wird */
       }
 
 
