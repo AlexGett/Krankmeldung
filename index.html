@@ -272,11 +272,11 @@
         box-sizing: border-box;
         text-align: left; /* Behalte dies für den Inhalt */
         margin-top: 20px;
-        margin-left: auto; /* NEU: Fügt einen festen linken Rand von 20mm hinzu */
+        margin-left: auto; /* Fügt einen festen linken Rand von 20mm hinzu */
         margin-right: auto; /* Behält die automatische rechte Zentrierung bei, falls der Platz es zulässt */
         font-size: 10pt; /* Schriftgröße reduziert */
 
-        /* Neue Flexbox-Eigenschaften für die Zentrierung des Inhalts, aber linksbündig */
+        /* Flexbox-Eigenschaften für die Zentrierung des Inhalts, aber linksbündig */
         display: flex;
         flex-direction: column; /* Elemente untereinander */
         align-items: flex-start; /* Inhalte linksbündig */
@@ -284,26 +284,24 @@
       .summary-box p {
         margin: 3px 0; /* Vertikaler Abstand zwischen den Absätzen reduziert */
         width: 100%; /* Wichtig, damit span und b richtig nebeneinander stehen */
-        /*display: flex; Dies wurde ersetzt durch grid*/
-        /*justify-content: flex-start;*/
-        /*align-items: baseline;*/
-        /*flex-wrap: wrap;*/
-        display: grid; /* NEU: Verwende Grid */
-        grid-template-columns: 120px 1fr; /* NEU: Zwei Spalten, 120px für Label, Rest für Wert */
-        align-items: baseline; /* Behalte Baseline-Ausrichtung bei */
+        display: flex; /* NEU: Wieder Flexbox */
+        align-items: baseline; /* Texte an der Grundlinie ausrichten */
+        flex-wrap: wrap; /* Erlaubt Umbruch, wenn der Text zu lang ist */
       }
       .summary-box p span {
-        /*display: block; Dies wird durch Grid-Item-Verhalten impliziert*/
-        /*min-width: 120px; Dies wird nun durch grid-template-columns gesteuert*/
+        display: block;
+        /* min-width: 120px; Wird durch flex-basis ersetzt */
+        flex-basis: 120px; /* NEU: Feste Breite für das Label */
         font-weight: normal;
         text-align: left;
-        padding-right: 10px; /* Optionaler Abstand zwischen Label und Wert */
+        padding-right: 10px; /* Abstand zwischen Label und Wert */
       }
       .summary-box p b {
         font-weight: bold;
-        /*flex-grow: 1; Dies wird durch 1fr in grid-template-columns gesteuert*/
+        flex-grow: 1; /* Der fette Text nimmt den restlichen verfügbaren Platz ein */
         text-align: left;
         word-break: break-word; /* Wichtig, um lange Texte umzubrechen */
+        margin-left: auto; /* NEU: Schiebt den Wert so weit wie möglich nach rechts */
       }
       /* NEU: Styling für den Bild-Container im Druck */
       .summary-image-container {
