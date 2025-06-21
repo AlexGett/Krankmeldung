@@ -191,40 +191,67 @@
 
     @media print {
       body {
-        margin: 0;
-        padding: 0;
+        /* Standard-Schriftgröße für den Druck, falls nicht anders angegeben */
         font-size: 12pt;
       }
-      .form-container {
-        width: 100%;
-        padding: 20mm;
-        box-sizing: border-box;
-      }
-      .logo-container {
-        position: absolute;
-        top: 10mm;
-        right: 10mm;
-      }
-      .logo-container img {
-        height: 100px;
-      }
-      input, button, .checkbox-group, #employee-list, .image-upload-section { /* Hide form elements in print */
+
+      /* Verstecke alle Formularschritte außer der Zusammenfassung */
+      #step-0, #step-1, #step-2, #step-3, #step-4 {
         display: none !important;
       }
+
+      /* Stelle sicher, dass die Zusammenfassungsansicht sichtbar ist */
+      #step-5 {
+        display: block !important;
+      }
+
+      /* Verstecke spezifische Formularelemente, die nicht gedruckt werden sollen */
+      input, button, .checkbox-group, #employee-list, .image-upload-section, .overlay, .options-popup {
+        display: none !important;
+      }
+
+      /* Der Formular-Container soll sich an den Druckbereich anpassen */
+      .form-container {
+        width: 100%;
+        margin: 0; /* Kein automatischer Rand mehr */
+        padding: 0; /* Standard-Padding entfernen, da summary-box sein eigenes hat */
+        position: relative; /* Behalte die Position bei für das Logo */
+        box-sizing: border-box;
+      }
+
+      /* Das Logo soll seine ursprüngliche Position und Größe beibehalten */
+      .logo-container {
+        position: absolute; /* Behalte die absolute Position bei */
+        top: -20px; /* Behalte die Position bei */
+        right: 10px; /* Behalte die Position bei */
+      }
+      .logo-container img {
+        height: 80px; /* Behalte die Bildschirmgröße bei */
+      }
+
+      /* Die Zusammenfassungsbox soll ihre Bildschirmbreite und Polsterung beibehalten */
       .summary-box {
         border: 2px solid #000;
-        /* Adjusted padding for larger left and right border */
-        padding: 15mm 30mm; /* Top/Bottom 15mm, Left/Right 30mm */
-        width: 100%;
-        font-size: 12pt;
+        background-color: #e8d3d2;
+        padding: 15px 30px; /* Deine gewünschte Polsterung für den Druck */
+        width: 100%; /* Nimm die volle Breite des Containers ein */
+        max-width: 400px; /* Behalte die maximale Breite bei */
+        box-sizing: border-box;
         text-align: left;
+        margin-top: 20px; /* Behalte den oberen Rand bei */
+        margin-left: auto; /* Zentriere die Box horizontal */
+        margin-right: auto; /* Zentriere die Box horizontal */
       }
+
+      /* Überschriften-Zentrierung beibehalten, falls gewünscht */
       h1, h2 {
         text-align: center;
       }
+
+      /* Papierformat und Ränder für den Druck */
       @page {
         size: A4;
-        margin: 10mm;
+        margin: 10mm; /* Standard-Ränder für A4 */
       }
     }
   </style>
@@ -551,4 +578,3 @@
   </script>
 </body>
 </html>
-
