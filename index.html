@@ -222,9 +222,15 @@
 
 
     @media print {
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%; /* Wichtig für die korrekte Berechnung der Höhe */
+        overflow: hidden; /* Verhindert Scrollbalken und manchmal unerwünschte Ränder */
+      }
       body {
         font-size: 12pt;
-        margin-top: 50px; /* Zurück auf 50px für 1cm nach unten */
+        /* margin-top: 50px; <-- Diese Zeile wird jetzt über den form-container gesteuert */
       }
 
       /* Verstecke alle Formularschritte außer der Zusammenfassung */
@@ -242,20 +248,27 @@
         display: none !important;
       }
 
-      /* Der Formular-Container soll sich an den Druckbereich anpassen */
+      /* Der Formular-Container als der definierte Druckbereich */
       .form-container {
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        position: relative;
-        box-sizing: border-box;
+        width: 210mm; /* A4 Breite */
+        height: 297mm; /* A4 Höhe */
+        /* Adjust for desired margins, e.g., 10mm all around */
+        padding: 10mm; /* Innerer Rand */
+        box-sizing: border-box; /* Padding wird in width/height einbezogen */
+
+        position: absolute; /* Absolute Positionierung für genaue Kontrolle */
+        top: 0;
+        left: 0;
+        /* Keine automatischen Margins mehr, um Position zu fixieren */
+        margin: 0; /* Wichtig: Überschreibt vorherige Margins */
+        overflow: hidden; /* Verhindert, dass Inhalt über den Container hinausgeht */
       }
 
       /* Das Logo soll seine ursprüngliche Position und Größe beibehalten */
       .logo-container {
         position: absolute;
-        top: -70px;
-        right: 10px;
+        top: 10mm; /* Abstand vom oberen Rand des form-containers (innerhalb des Paddings) */
+        right: 10mm; /* Abstand vom rechten Rand des form-containers (innerhalb des Paddings) */
       }
       .logo-container img {
         height: 80px; /* Behalte die Bildschirmgröße bei */
@@ -267,13 +280,13 @@
         border: 2px solid #000;
         background-color: #ffffff;
         padding: 10px 20px; /* Padding reduziert, um Platz zu sparen */
-        width: 100%;
-        max-width: 500px; /* Kleinere maximale Breite */
+        width: 100%; /* Nimmt 100% der verfügbaren Breite im form-container - padding */
+        /* max-width: 500px; <--- Diese Zeile sollte entfernt oder angepasst werden, da width: 100% gilt */
         box-sizing: border-box;
         text-align: left; /* Behalte dies für den Inhalt */
         margin-top: 20px;
-        margin-left: auto; /* Fügt einen festen linken Rand von 20mm hinzu */
-        margin-right: auto; /* Behält die automatische rechte Zentrierung bei, falls der Platz es zulässt */
+        margin-left: 0; /* Wir steuern den Container selbst, nicht dessen Inhalt */
+        margin-right: 0; /* Wir steuern den Container selbst, nicht dessen Inhalt */
         font-size: 10pt; /* Schriftgröße reduziert */
 
         /* Flexbox-Eigenschaften für die Zentrierung des Inhalts, aber linksbündig */
@@ -284,14 +297,13 @@
       .summary-box p {
         margin: 3px 0; /* Vertikaler Abstand zwischen den Absätzen reduziert */
         width: 100%; /* Wichtig, damit span und b richtig nebeneinander stehen */
-        display: flex; /* NEU: Wieder Flexbox */
+        display: flex; /* Flexbox */
         align-items: baseline; /* Texte an der Grundlinie ausrichten */
         flex-wrap: wrap; /* Erlaubt Umbruch, wenn der Text zu lang ist */
       }
       .summary-box p span {
         display: block;
-        /* min-width: 120px; Wird durch flex-basis ersetzt */
-        flex-basis: 120px; /* NEU: Feste Breite für das Label */
+        flex-basis: 120px; /* Feste Breite für das Label */
         font-weight: normal;
         text-align: left;
         padding-right: 10px; /* Abstand zwischen Label und Wert */
@@ -301,7 +313,7 @@
         flex-grow: 1; /* Der fette Text nimmt den restlichen verfügbaren Platz ein */
         text-align: left;
         word-break: break-word; /* Wichtig, um lange Texte umzubrechen */
-        margin-left: auto; /* NEU: Schiebt den Wert so weit wie möglich nach rechts */
+        margin-left: auto; /* Schiebt den Wert so weit wie möglich nach rechts */
       }
       /* NEU: Styling für den Bild-Container im Druck */
       .summary-image-container {
@@ -333,7 +345,7 @@
       /* Papierformat und Ränder für den Druck */
       @page {
         size: A4;
-        margin: 10mm; /* Standard-Ränder für A4 */
+        margin: 0 !important; /* Wichtig: margin auf 0 setzen, um die volle Kontrolle zu haben */
         /* Versuch, Header und Footer (inkl. URL) zu entfernen, abhängig vom Browser */
         @top-left { content: ""; }
         @top-center { content: ""; }
