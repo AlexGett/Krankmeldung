@@ -201,6 +201,25 @@
         margin-bottom: 10px;
     }
 
+    /* NEU: Styling für den Bild-Container in der Zusammenfassung */
+    .summary-image-container {
+      width: 100%; /* Standardbreite für den Container */
+      max-width: 350px; /* Max. Breite für Bildschirmansicht */
+      height: 250px; /* Feste Höhe für den Container */
+      margin: 10px auto; /* Zentrierung und Abstand */
+      border: 1px solid #ccc; /* Rand zur Abgrenzung */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden; /* Wichtig, um Überläufe zu verhindern */
+      background-color: #f9f9f9; /* Hintergrundfarbe für den Bereich */
+    }
+    .summary-image-container img {
+      max-width: 100%; /* Bild füllt den Container aus */
+      max-height: 100%; /* Bild füllt den Container aus */
+      object-fit: contain; /* Bild wird skaliert, sodass es ganz in den Container passt */
+    }
+
 
     @media print {
       body {
@@ -282,15 +301,24 @@
         text-align: left;
         word-break: break-word; /* Wichtig, um lange Texte umzubrechen */
       }
-      .summary-box img {
-          max-width: 100%; /* Bildgröße im Druck verkleinern, aber 100% der Box-Breite nutzen */
-          max-height: 200mm; /* Maximale Höhe des Bildes festlegen, z.B. 200mm (~80% einer A4-Seite) */
-          width: auto; /* Breite automatisch anpassen, um Proportionen zu erhalten */
-          height: auto; /* Höhe automatisch anpassen, um Proportionen zu erhalten */
-          object-fit: contain; /* Stellt sicher, dass das gesamte Bild sichtbar ist und nicht abgeschnitten wird */
-          page-break-before: auto; /* Verhindert einen Seitenumbruch direkt vor dem Bild */
-          page-break-after: avoid; /* Versucht einen Seitenumbruch nach dem Bild zu vermeiden, falls noch Platz ist */
-          page-break-inside: avoid; /* Verhindert, dass das Bild selbst umgebrochen wird */
+      /* NEU: Styling für den Bild-Container im Druck */
+      .summary-image-container {
+        width: 150mm; /* Feste Breite des Containers im Druck (z.B. 15 cm) */
+        height: 100mm; /* Feste Höhe des Containers im Druck (z.B. 10 cm) */
+        margin: 10mm auto 5mm auto; /* Abstand oben/unten und Zentrierung im Druck */
+        border: 1px solid #000; /* Schwarzer Rand im Druck */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        page-break-inside: avoid; /* Verhindert, dass der Container selbst umgebrochen wird */
+        page-break-before: auto; /* Erlaubt Umbruch vor dem Container, wenn nötig */
+        page-break-after: avoid; /* Versucht Umbruch nach dem Container zu vermeiden */
+      }
+      .summary-image-container img {
+          max-width: 100%; /* Bild füllt den Container aus */
+          max-height: 100%; /* Bild füllt den Container aus */
+          object-fit: contain; /* Bild wird skaliert, sodass es ganz in den Container passt */
       }
 
 
@@ -542,7 +570,9 @@
           <p><span>Name:</span> <b>${currentUser.lastname}</b></p>
           <p><span>Vorname:</span> <b>${currentUser.firstname}</b></p>
           <p><span>Personalnummer:</span> <b>${currentUser.pn}</b></p>
-          <img src="${sickNoteImageData}" alt="Hochgeladenes Bild der Krankmeldung" style="max-width: 100%; height: auto; margin-top: 10px;">
+          <div class="summary-image-container">
+            <img src="${sickNoteImageData}" alt="Hochgeladenes Bild der Krankmeldung">
+          </div>
         `;
       } else {
         const reportDate = document.getElementById("report-date").value.split("-").reverse().join(".");
