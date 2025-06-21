@@ -193,8 +193,8 @@
       body {
         /* Standard-Schriftgröße für den Druck, falls nicht anders angegeben */
         font-size: 12pt;
-        /* Oberen Rand des gesamten Body um 50px verschieben */
-        margin-top: 50px;
+        /* Oberen Rand des gesamten Body optimiert für eine Seite */
+        margin-top: 20px; /* Weniger als 50px, um Platz zu sparen */
       }
 
       /* Verstecke alle Formularschritte außer der Zusammenfassung */
@@ -237,7 +237,7 @@
         background-color: #e8d3d2;
         padding: 15px 30px; /* Deine gewünschte Polsterung für den Druck */
         width: 100%; /* Nimm die volle Breite des Containers ein */
-        max-width: 700px; /* Erhöhte maximale Breite für den Druck */
+        max-width: 95%; /* Flexiblerer Wert, um den verfügbaren Platz auszunutzen */
         box-sizing: border-box;
         text-align: left;
         margin-top: 20px; /* Behalte den oberen Rand bei */
@@ -254,6 +254,15 @@
       @page {
         size: A4;
         margin: 10mm; /* Standard-Ränder für A4 */
+      }
+
+      /* Optional: Jegliche Art von Fußzeile/Paginierung entfernen (Standard-Browser-Features) */
+      @page {
+        /* Dies könnte helfen, Browser-spezifische Kopf- und Fußzeilen zu reduzieren,
+           aber vollständiges Entfernen hängt stark vom Browser ab. */
+        marks: none; /* Entfernt Schnittmarken und Registriermarken */
+        /* Eine gängige Methode, um Footer zu unterdrücken, ist, diese unsichtbar zu machen,
+           aber das funktioniert nur für Inhalte, die du kontrollierst. */
       }
     }
   </style>
