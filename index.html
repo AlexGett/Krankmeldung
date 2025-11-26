@@ -1,588 +1,891 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>Krankmeldung</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    .form-container {
-      width: 90%;
-      margin: auto;
-      padding: 10px;
-      position: relative;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-    }
+	<meta charset="UTF-8" />
+	<title>Krankmeldung</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="manifest" href="manifest.json">
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
 
-    /* Einheitliche Größe für Textfelder, Datum-/Zeit-Eingaben und Buttons */
-    /* Basis-Styling für alle betroffenen Elemente */
-    input[type="text"],
-    input[type="date"],
-    input[type="time"],
-    button {
-      width: 100%; /* Volle Breite im Container */
-      max-width: 400px; /* Maximale Breite für größere Bildschirme */
-      height: 60px; /* Einheitliche Höhe */
-      padding: 5px;
-      margin-bottom: 10px;
-      box-sizing: border-box;
-      font-size: 24px;
-      border: 1px solid #ccc; /* Standard-Rand für Input-Felder */
-      border-radius: 4px; /* Leichter Rand für Input-Felder */
-      background-color: #f0f0f0; /* Hintergrundfarbe wie im Bild */
-      color: #000; /* Textfarbe */
-    }
+		.form-container {
+			width: 90%;
+			margin: auto;
+			padding: 10px;
+			position: relative;
+		}
 
-    /* Spezifisches Styling für Datum- und Zeit-Inputs, um Browser-Standard zu überschreiben */
-    input[type="date"],
-    input[type="time"] {
-      -webkit-appearance: none; /* Für Safari/Chrome */
-      -moz-appearance: none;    /* Für Firefox */
-      appearance: none;         /* Standard */
-      padding-right: 10px; /* Platz für Pfeil/Icon, falls der Browser es rendert */
-      text-align: center; /* Text in der Mitte */
-      line-height: 60px; /* Vertikale Zentrierung des Textes */
-      color: black; /* Schwarz wie im Bild */
-      font-weight: bold; /* Fett wie im Bild */
-    }
+		.form-group {
+			margin-bottom: 15px;
+		}
 
-    /* Styling für die DUNKELBLAUEN Buttons */
-    button {
-      background-color: #2c3e50; /* Elegantes Dunkelblau */
-      color: white;
-      border: none; /* Buttons haben keinen Rand */
-      cursor: pointer;
-      text-align: center; /* Textzentrierung für Buttons */
-    }
-    button:hover {
-      background-color: #34495e; /* Eine etwas dunklere Nuance für den Hover-Effekt */
-    }
+		label {
+			display: block;
+			margin-bottom: 5px;
+		}
 
-    .checkbox-group {
-      display: flex;
-      flex-direction: column; /* Checkboxen untereinander */
-      margin-bottom: 10px;
-    }
-    .checkbox-group div { /* Container für jede Checkbox-Label-Gruppe */
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px; /* Abstand zwischen den Checkbox-Zeilen */
-    }
-    .checkbox-group label {
-      margin-left: 5px;
-      margin-bottom: 0; /* Kein zusätzlicher Abstand durch Label-Regel */
-    }
-    .checkbox-group input[type="checkbox"] {
-      width: 30px;
-      height: 30px;
-      margin-right: 5px; /* Abstand zwischen Checkbox und Label */
-    }
-    .hidden {
-      display: none !important; /* Wichtig für das Ausblenden */
-    }
+		/* Einheitliche Größe für Textfelder, Datum-/Zeit-Eingaben und Buttons */
+		/* Basis-Styling für alle betroffenen Elemente */
+		input[type="text"],
+		input[type="date"],
+		input[type="time"],
+		button {
+			width: 100%;
+			/* Volle Breite im Container */
+			max-width: 400px;
+			/* Maximale Breite für größere Bildschirme */
+			height: 60px;
+			/* Einheitliche Höhe */
+			padding: 5px;
+			margin-bottom: 10px;
+			box-sizing: border-box;
+			font-size: 24px;
+			border: 1px solid #ccc;
+			/* Standard-Rand für Input-Felder */
+			border-radius: 4px;
+			/* Leichter Rand für Input-Felder */
+			background-color: #f0f0f0;
+			/* Hintergrundfarbe wie im Bild */
+			color: #000;
+			/* Textfarbe */
+		}
 
-    .summary-box {
-      border: 2px solid #000;
-      background-color: #ffffff;
-      padding: 15px;
-      margin-top: 20px;
-      width: 100%;
-      max-width: 400px;
-      box-sizing: border-box;
-      /* Flexbox für Zentrierung der Box */
-      display: flex;
-      flex-direction: column; /* Elemente untereinander anordnen */
-      align-items: center; /* Zentriert die Box horizontal */
-    }
-    .summary-box p {
-      margin: 5px 0;
-      width: 100%; /* p-Elemente nehmen die volle Breite ein */
-      display: flex; /* p wird zum Flex-Container */
-      justify-content: flex-start; /* Elemente am Start der Zeile ausrichten */
-      align-items: baseline; /* Texte an der Grundlinie ausrichten */
-      flex-wrap: wrap; /* Erlaubt Umbruch, wenn der Text zu lang ist */
-    }
-    .summary-box p span { /* Specific styling for spans within p for alignment */
-      display: block; /* Span nimmt ganze Breite für sich ein, wenn allein */
-      min-width: 150px; /* Minimale Breite für das Label */
-      font-weight: normal;
-      text-align: left;
-    }
-    .summary-box p b { /* Specific styling for bold text within p */
-      font-weight: bold;
-      flex-grow: 1; /* Der fette Text nimmt den restlichen verfügbaren Platz ein */
-      text-align: left;
-      word-break: break-word; /* Prevents long words from overflowing */
-    }
-    .logo-container {
-      position: absolute;
-      top: -20px;
-      right: 10px;
-    }
-    .logo-container img {
-      height: 80px;
-      cursor: pointer; /* Macht das Logo klickbar */
-    }
-    /* Diese Liste wird nicht mehr benötigt, aber für die Stil-Konsistenz beibehalten */
-    #employee-list {
-      list-style: none;
-      padding: 0;
-      margin-top: 5px;
-      width: 100%;
-      max-height: 200px;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      background-color: white;
-      position: absolute;
-      z-index: 1000;
-      display: none;
-    }
-    #employee-list li {
-      padding: 10px;
-      cursor: pointer;
-    }
-    #employee-list li:hover {
-      background-color: #f0f0f0;
-    }
+		/* Spezifisches Styling für Datum- und Zeit-Inputs, um Browser-Standard zu überschreiben */
+		input[type="date"],
+		input[type="time"] {
+			-webkit-appearance: none;
+			/* Für Safari/Chrome */
+			-moz-appearance: none;
+			/* Für Firefox */
+			appearance: none;
+			/* Standard */
+			padding-right: 10px;
+			/* Platz für Pfeil/Icon, falls der Browser es rendert */
+			text-align: center;
+			/* Text in der Mitte */
+			line-height: 60px;
+			/* Vertikale Zentrierung des Textes */
+			color: black;
+			/* Schwarz wie im Bild */
+			font-weight: bold;
+			/* Fett wie im Bild */
+		}
 
-    /* Styles for the new image upload section */
-    .image-upload-section {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid #eee;
-    }
+		/* Styling für die DUNKELBLAUEN Buttons */
+		button {
+			background-color: #2c3e50;
+			/* Elegantes Dunkelblau */
+			color: white;
+			border: none;
+			/* Buttons haben keinen Rand */
+			cursor: pointer;
+			text-align: center;
+			/* Textzentrierung für Buttons */
+		}
 
-    #uploaded-image {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 10px auto;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
+		button:hover {
+			background-color: #34495e;
+			/* Eine etwas dunklere Nuance für den Hover-Effekt */
+		}
 
-    /* Styling für das Optionen-Pop-up */
-    .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-    }
-    .options-popup {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        text-align: center;
-        width: 80%;
-        max-width: 300px;
-    }
-    .options-popup button {
-        display: block;
-        width: 100%;
-        margin-bottom: 10px;
-    }
+		.checkbox-group {
+			display: flex;
+			flex-direction: column;
+			/* Checkboxen untereinander */
+			margin-bottom: 10px;
+		}
 
-    /* NEU: Styling für den Bild-Container in der Zusammenfassung */
-    .summary-image-container {
-      width: 100%; /* Standardbreite für den Container */
-      max-width: 350px; /* Max. Breite für größere Bildschirme */
-      height: 350px; /* Feste Höhe für den Container */
-      margin: 10px auto; /* Zentrierung und Abstand */
-      border: 1px solid #ccc; /* Rand zur Abgrenzung */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden; /* Wichtig, um Überläufe zu verhindern */
-      background-color: #f9f9f9; /* Hintergrundfarbe für den Bereich */
-    }
-    .summary-image-container img {
-      max-width: 100%; /* Bild füllt den Container aus */
-      max-height: 100%; /* Bild füllt den Container aus */
-      object-fit: contain; /* Bild wird skaliert, sodass es ganz in den Container passt */
-    }
+		.checkbox-group div {
+			/* Container für jede Checkbox-Label-Gruppe */
+			display: flex;
+			align-items: center;
+			margin-bottom: 10px;
+			/* Abstand zwischen den Checkbox-Zeilen */
+		}
 
+		.checkbox-group label {
+			margin-left: 5px;
+			margin-bottom: 0;
+			/* Kein zusätzlicher Abstand durch Label-Regel */
+		}
 
-    @media print {
-      body {
-        font-size: 12pt;
-        margin-top: 50px; /* Zurück auf 50px für 1cm nach unten */
-      }
+		.checkbox-group input[type="checkbox"] {
+			width: 30px;
+			height: 30px;
+			margin-right: 5px;
+			/* Abstand zwischen Checkbox und Label */
+		}
 
-      /* Verstecke alle Formularschritte außer der Zusammenfassung */
-      #step-0, #step-1, #step-2, #step-3, #step-4 {
-        display: none !important;
-      }
+		.hidden {
+			display: none !important;
+			/* Wichtig für das Ausblenden */
+		}
 
-      /* Stelle sicher, dass die Zusammenfassungsansicht sichtbar ist */
-      #step-5 {
-        display: block !important;
-      }
+		.summary-box {
+			border: 2px solid #000;
+			background-color: #ffffff;
+			padding: 15px;
+			margin-top: 20px;
+			width: 100%;
+			max-width: 400px;
+			box-sizing: border-box;
+			/* Flexbox für Zentrierung der Box */
+			display: flex;
+			flex-direction: column;
+			/* Elemente untereinander anordnen */
+			align-items: center;
+			/* Zentriert die Box horizontal */
+		}
 
-      /* Verstecke spezifische Formularelemente, die nicht gedruckt werden sollen */
-      input, button, .checkbox-group, #employee-list, .image-upload-section, .overlay, .options-popup {
-        display: none !important;
-      }
+		.summary-box p {
+			margin: 5px 0;
+			width: 100%;
+			/* p-Elemente nehmen die volle Breite ein */
+			display: flex;
+			/* p wird zum Flex-Container */
+			justify-content: flex-start;
+			/* Elemente am Start der Zeile ausrichten */
+			align-items: baseline;
+			/* Texte an der Grundlinie ausrichten */
+			flex-wrap: wrap;
+			/* Erlaubt Umbruch, wenn der Text zu lang ist */
+		}
 
-      /* Der Formular-Container soll sich an den Druckbereich anpassen */
-      .form-container {
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        position: relative;
-        box-sizing: border-box;
-      }
+		.summary-box p span {
+			/* Specific styling for spans within p for alignment */
+			display: block;
+			/* Span nimmt ganze Breite für sich ein, wenn allein */
+			min-width: 150px;
+			/* Minimale Breite für das Label */
+			font-weight: normal;
+			text-align: left;
+		}
 
-      /* Das Logo soll seine ursprüngliche Position und Größe beibehalten */
-      .logo-container {
-        position: absolute;
-        top: -70px;
-        right: 10px;
-      }
-      .logo-container img {
-        height: 80px; /* Behalte die Bildschirmgröße bei */
-        max-width: 200px; /* Limit image width on print */
-      }
+		.summary-box p b {
+			/* Specific styling for bold text within p */
+			font-weight: bold;
+			flex-grow: 1;
+			/* Der fette Text nimmt den restlichen verfügbaren Platz ein */
+			text-align: left;
+			word-break: break-word;
+			/* Prevents long words from overflowing */
+		}
 
-      /* Die Zusammenfassungsbox für den Druck anpassen */
-      .summary-box {
-        border: 2px solid #000;
-        background-color: #ffffff;
-        padding: 10px 20px; /* Padding reduziert, um Platz zu sparen */
-        width: 100%;
-        max-width: 500px; /* Kleinere maximale Breite */
-        box-sizing: border-box;
-        text-align: left; /* Behalte dies für den Inhalt */
-        margin-top: 20px;
-        margin-left: auto; /* Fügt einen festen linken Rand von 20mm hinzu */
-        margin-right: auto; /* Behält die automatische rechte Zentrierung bei, falls der Platz es zulässt */
-        font-size: 10pt; /* Schriftgröße reduziert */
+		.logo-container {
+			position: absolute;
+			top: -20px;
+			right: 10px;
+		}
 
-        /* Flexbox-Eigenschaften für die Zentrierung des Inhalts, aber linksbündig */
-        display: flex;
-        flex-direction: column; /* Elemente untereinander */
-        align-items: flex-start; /* Inhalte linksbündig */
-      }
-      .summary-box p {
-        margin: 3px 0; /* Vertikaler Abstand zwischen den Absätzen reduziert */
-        width: 100%; /* Wichtig, damit span und b richtig nebeneinander stehen */
-        display: flex; /* NEU: Wieder Flexbox */
-        align-items: baseline; /* Texte an der Grundlinie ausrichten */
-        flex-wrap: wrap; /* Erlaubt Umbruch, wenn der Text zu lang ist */
-      }
-      .summary-box p span {
-        display: block;
-        /* min-width: 120px; Wird durch flex-basis ersetzt */
-        flex-basis: 120px; /* NEU: Feste Breite für das Label */
-        font-weight: normal;
-        text-align: left;
-        padding-right: 10px; /* Abstand zwischen Label und Wert */
-      }
-      .summary-box p b {
-        font-weight: bold;
-        flex-grow: 1; /* Der fette Text nimmt den restlichen verfügbaren Platz ein */
-        text-align: left;
-        word-break: break-word; /* Wichtig, um lange Texte umzubrechen */
-        margin-left: auto; /* NEU: Schiebt den Wert so weit wie möglich nach rechts */
-      }
-      /* NEU: Styling für den Bild-Container im Druck */
-      .summary-image-container {
-        width: 150mm; /* Feste Breite des Containers im Druck (z.B. 15 cm) */
-        height: 150mm; /* Feste Höhe des Containers im Druck (z.B. 10 cm) */
-        margin: 5mm auto 5mm auto; /* Abstand oben/unten und Zentrierung im Druck */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        page-break-inside: avoid; /* Verhindert, dass der Container selbst umgebrochen wird */
-        page-break-before: auto; /* Erlaubt Umbruch vor dem Container, wenn nötig */
-        page-break-after: avoid; /* Versucht Umbruch nach dem Container zu vermeiden */
-      }
-      .summary-image-container img {
-          max-width: 100%; /* Bild füllt den Container aus */
-          max-height: 100%; /* Bild füllt den Container aus */
-          object-fit: contain; /* Bild wird skaliert, sodass es ganz in den Container passt */
-      }
+		.logo-container img {
+			height: 80px;
+			cursor: pointer;
+			/* Macht das Logo klickbar */
+		}
+
+		/* NEU: Styling für die Autocomplete-Liste */
+		#employee-list {
+			list-style: none;
+			padding: 0;
+			margin-top: -10px;
+			/* etwas höher schieben */
+			width: 100%;
+			max-width: 400px;
+			/* Gleiche maximale Breite wie das Input-Feld */
+			max-height: 200px;
+			overflow-y: auto;
+			border: 1px solid #ccc;
+			background-color: white;
+			position: absolute;
+			/* Wichtig, damit es über anderen Elementen liegt */
+			z-index: 1000;
+			/* Stellt sicher, dass es ganz oben ist */
+			box-sizing: border-box;
+			display: none;
+			/* Standardmäßig versteckt */
+		}
+
+		#employee-list li {
+			padding: 10px;
+			cursor: pointer;
+			font-size: 20px;
+			/* Große Schrift wie im Input */
+		}
+
+		#employee-list li:hover {
+			background-color: #f0f0f0;
+		}
+
+		/* Styles for the new image upload section */
+		.image-upload-section {
+			margin-top: 20px;
+			padding-top: 20px;
+			border-top: 1px solid #eee;
+		}
+
+		#uploaded-image {
+			max-width: 100%;
+			height: auto;
+			display: block;
+			margin: 10px auto;
+			border: 1px solid #ccc;
+			box-sizing: border-box;
+		}
+
+		/* Styling für das Optionen-Pop-up */
+		.overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.5);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			z-index: 1000;
+		}
+
+		.options-popup {
+			background: white;
+			padding: 20px;
+			border-radius: 8px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+			text-align: center;
+			width: 80%;
+			max-width: 300px;
+		}
+
+		.options-popup button {
+			display: block;
+			width: 100%;
+			margin-bottom: 10px;
+		}
+
+		/* NEU: Styling für den Bild-Container in der Zusammenfassung */
+		.summary-image-container {
+			width: 100%;
+			/* Standardbreite für den Container */
+			max-width: 350px;
+			/* Max. Breite für größere Bildschirme */
+			height: 350px;
+			/* Feste Höhe für den Container */
+			margin: 10px auto;
+			/* Zentrierung und Abstand */
+			border: 1px solid #ccc;
+			/* Rand zur Abgrenzung */
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			overflow: hidden;
+			/* Wichtig, um Überläufe zu verhindern */
+			background-color: #f9f9f9;
+			/* Hintergrundfarbe für den Bereich */
+		}
+
+		.summary-image-container img {
+			max-width: 100%;
+			/* Bild füllt den Container aus */
+			max-height: 100%;
+			/* Bild füllt den Container aus */
+			object-fit: contain;
+			/* Bild wird skaliert, sodass es ganz in den Container passt */
+		}
 
 
-      /* Überschriften-Zentrierung beibehalten, falls gewünscht */
-      h1, h2 {
-        text-align: center;
-        font-size: 18pt; /* Oder eine andere passende Größe */
-        margin-bottom: 5px; /* Abstand unter Überschriften reduzieren */
-      }
+		@media print {
+			body {
+				font-size: 12pt;
+				margin-top: 50px;
+				/* Zurück auf 50px für 1cm nach unten */
+			}
 
-      /* Papierformat und Ränder für den Druck */
-      @page {
-        size: A4;
-        margin: 10mm; /* Standard-Ränder für A4 */
-        /* Versuch, Header und Footer (inkl. URL) zu entfernen, abhängig vom Browser */
-        @top-left { content: ""; }
-        @top-center { content: ""; }
-        @top-right { content: ""; }
-        @bottom-left { content: ""; }
-        @bottom-center { content: ""; }
-        @bottom-right { content: ""; }
-      }
-    }
-  </style>
+			/* Verstecke alle Formularschritte außer der Zusammenfassung */
+			#step-0,
+			#step-1,
+			#step-2,
+			#step-3,
+			#step-4 {
+				display: none !important;
+			}
+
+			/* Stelle sicher, dass die Zusammenfassungsansicht sichtbar ist */
+			#step-5 {
+				display: block !important;
+			}
+
+			/* Verstecke spezifische Formularelemente, die nicht gedruckt werden sollen */
+			input,
+			button,
+			.checkbox-group,
+			#employee-list,
+			.image-upload-section,
+			.overlay,
+			.options-popup {
+				display: none !important;
+			}
+
+			/* Der Formular-Container soll sich an den Druckbereich anpassen */
+			.form-container {
+				width: 100%;
+				margin: 0;
+				padding: 0;
+				position: relative;
+				box-sizing: border-box;
+			}
+
+			/* Das Logo soll seine ursprüngliche Position und Größe beibehalten */
+			.logo-container {
+				position: absolute;
+				top: -70px;
+				right: 10px;
+			}
+
+			.logo-container img {
+				height: 80px;
+				/* Behalte die Bildschirmgröße bei */
+				max-width: 200px;
+				/* Limit image width on print */
+			}
+
+			/* Die Zusammenfassungsbox für den Druck anpassen */
+			.summary-box {
+				border: 2px solid #000;
+				background-color: #ffffff;
+				padding: 10px 20px;
+				/* Padding reduziert, um Platz zu sparen */
+				width: 100%;
+				max-width: 500px;
+				/* Kleinere maximale Breite */
+				box-sizing: border-box;
+				text-align: left;
+				/* Behalte dies für den Inhalt */
+				margin-top: 20px;
+				margin-left: auto;
+				/* Fügt einen festen linken Rand von 20mm hinzu */
+				margin-right: auto;
+				/* Behält die automatische rechte Zentrierung bei, falls der Platz es zulässt */
+				font-size: 10pt;
+				/* Schriftgröße reduziert */
+
+				/* Flexbox-Eigenschaften für die Zentrierung des Inhalts, aber linksbündig */
+				display: flex;
+				flex-direction: column;
+				/* Elemente untereinander */
+				align-items: flex-start;
+				/* Inhalte linksbündig */
+			}
+
+			.summary-box p {
+				margin: 3px 0;
+				/* Vertikaler Abstand zwischen den Absätzen reduziert */
+				width: 100%;
+				/* Wichtig, damit span und b richtig nebeneinander stehen */
+				display: flex;
+				/* NEU: Wieder Flexbox */
+				align-items: baseline;
+				/* Texte an der Grundlinie ausrichten */
+				flex-wrap: wrap;
+				/* Erlaubt Umbruch, wenn der Text zu lang ist */
+			}
+
+			.summary-box p span {
+				display: block;
+				/* min-width: 120px; Wird durch flex-basis ersetzt */
+				flex-basis: 120px;
+				/* NEU: Feste Breite für das Label */
+				font-weight: normal;
+				text-align: left;
+				padding-right: 10px;
+				/* Abstand zwischen Label und Wert */
+			}
+
+			.summary-box p b {
+				font-weight: bold;
+				flex-grow: 1;
+				/* Der fette Text nimmt den restlichen verfügbaren Platz ein */
+				text-align: left;
+				word-break: break-word;
+				/* Wichtig, um lange Texte umzubrechen */
+				margin-left: auto;
+				/* NEU: Schiebt den Wert so weit wie möglich nach rechts */
+			}
+
+			/* NEU: Styling für den Bild-Container im Druck */
+			.summary-image-container {
+				width: 150mm;
+				/* Feste Breite des Containers im Druck (z.B. 15 cm) */
+				height: 150mm;
+				/* Feste Höhe des Containers im Druck (z.B. 10 cm) */
+				margin: 5mm auto 5mm auto;
+				/* Abstand oben/unten und Zentrierung im Druck */
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				overflow: hidden;
+				page-break-inside: avoid;
+				/* Verhindert, dass der Container selbst umgebrochen wird */
+				page-break-before: auto;
+				/* Erlaubt Umbruch vor dem Container, wenn nötig */
+				page-break-after: avoid;
+				/* Versucht Umbruch nach dem Container zu vermeiden */
+			}
+
+			.summary-image-container img {
+				max-width: 100%;
+				/* Bild füllt den Container aus */
+				max-height: 100%;
+				/* Bild füllt den Container aus */
+				object-fit: contain;
+				/* Bild wird skaliert, sodass es ganz in den Container passt */
+			}
+
+
+			/* Überschriften-Zentrierung beibehalten, falls gewünscht */
+			h1,
+			h2 {
+				text-align: center;
+				font-size: 18pt;
+				/* Oder eine andere passende Größe */
+				margin-bottom: 5px;
+				/* Abstand unter Überschriften reduzieren */
+			}
+
+			/* Papierformat und Ränder für den Druck */
+			@page {
+				size: A4;
+				margin: 10mm;
+
+				/* Standard-Ränder für A4 */
+				/* Versuch, Header und Footer (inkl. URL) zu entfernen, abhängig vom Browser */
+				@top-left {
+					content: "";
+				}
+
+				@top-center {
+					content: "";
+				}
+
+				@top-right {
+					content: "";
+				}
+
+				@bottom-left {
+					content: "";
+				}
+
+				@bottom-center {
+					content: "";
+				}
+
+				@bottom-right {
+					content: "";
+				}
+			}
+		}
+	</style>
 </head>
+
 <body>
-  <div class="form-container">
-    <div class="logo-container">
-      <img id="company-logo" src="https://images.seeklogo.com/logo-png/54/2/motherson-logo-png_seeklogo-544537.png" alt="Firmenlogo" />
-    </div>
-    <h1>Krankmeldung</h1>
-    <form id="sick-leave-form">
-      <div class="form-group" id="step-0">
-        <h2>Ihre Informationen</h2>
-        <label for="user-lastname">Name:</label>
-        <input type="text" id="user-lastname" name="user-lastname" required />
-        <label for="user-firstname">Vorname:</label>
-        <input type="text" id="user-firstname" name="user-firstname" required />
-        <label for="user-pn">Personalnummer:</label>
-        <input type="text" id="user-pn" name="user-pn" required />
-        <button type="button" onclick="saveUserInfoAndNextStep(1)">Start</button>
-      </div>
+	<div class="form-container">
+		<div class="logo-container">
+			<img id="company-logo" src="https://images.seeklogo.com/logo-png/54/2/motherson-logo-png_seeklogo-544537.png" alt="Firmenlogo" />
+		</div>
+		<h1>Krankmeldung</h1>
+		<form id="sick-leave-form">
+			<div class="form-group" id="step-0">
+				<h2>Ihre Informationen</h2>
+				<label for="user-lastname">Name:</label>
+				<input type="text" id="user-lastname" name="user-lastname" required />
+				<ul id="employee-list"></ul>
+				<label for="user-firstname">Vorname:</label>
+				<input type="text" id="user-firstname" name="user-firstname" required />
+				<label for="user-pn">Personalnummer:</label>
+				<input type="text" id="user-pn" name="user-pn" required />
+				<button type="button" onclick="saveUserInfoAndNextStep(1)">Start</button>
+			</div>
 
-      <div class="form-group hidden" id="step-1">
-        <label for="report-date">Krankmeldung bei SMP erfolgte am:</label>
-        <input type="date" id="report-date" name="report-date" />
-        <label for="report-time">um:</label>
-        <input type="time" id="report-time" name="report-time" />
-        <button type="button" onclick="validateStep1AndNext(2)">Weiter</button>
-        <button type="button" onclick="prevStep(0)">Zurück</button>
+			<div class="form-group hidden" id="step-1">
+				<label for="report-date">Krankmeldung bei SMP erfolgte am:</label>
+				<input type="date" id="report-date" name="report-date" />
+				<label for="report-time">um:</label>
+				<input type="time" id="report-time" name="report-time" />
+				<button type="button" onclick="validateStep1AndNext(2)">Weiter</button>
+				<button type="button" onclick="prevStep(0)">Zurück</button>
 
-        <div class="image-upload-section">
-          <p style="text-align: center; margin: 20px 0;">--- ODER ---</p>
-          <button type="button" onclick="triggerFileUpload()">Krankmeldung fotografieren / hochladen</button>
-          <input type="file" id="sick-note-image" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
-          <img id="uploaded-image" src="" alt="Hochgeladenes Bild der Krankmeldung" style="display: none;">
-          <button type="button" id="goToSummaryFromImage" class="hidden" onclick="nextStep(5)">Zur Zusammenfassung</button>
-        </div>
-      </div>
+				<div class="image-upload-section">
+					<p style="text-align: center; margin: 20px 0;">--- ODER ---</p>
+					<button type="button" onclick="triggerFileUpload()">Krankmeldung fotografieren / hochladen</button>
+					<input type="file" id="sick-note-image" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+					<img id="uploaded-image" src="" alt="Hochgeladenes Bild der Krankmeldung" style="display: none;">
+					<button type="button" id="goToSummaryFromImage" class="hidden" onclick="nextStep(5)">Zur Zusammenfassung</button>
+				</div>
+			</div>
 
-      <div class="form-group hidden" id="step-2">
-        <label for="duration">Dauer der Krankheit:</label>
-        <input type="date" id="duration-start" name="duration-start" required /> bis
-        <input type="date" id="duration-end" name="duration-end" required />
-        <button type="button" onclick="nextStep(3)">Weiter</button>
-        <button type="button" onclick="prevStep(1)">Zurück</button>
-      </div>
-      <div class="form-group hidden" id="step-3">
-        <div class="checkbox-group">
-          <div>
-            <input type="checkbox" id="first-certification" name="certification-type" value="Erstbescheinigung" />
-            <label for="first-certification">Erstbescheinigung</label>
-          </div>
-          <div>
-            <input type="checkbox" id="follow-up-certification" name="certification-type" value="Folgebescheinigung" />
-            <label for="follow-up-certification">Folgebescheinigung</label>
-          </div>
-        </div>
-        <button type="button" onclick="nextStep(4)">Weiter</button>
-        <button type="button" onclick="prevStep(2)">Zurück</button>
-      </div>
-      <div class="form-group hidden" id="step-4">
-        <label for="doctor-visit">Der Arztbesuch war am:</label>
-        <input type="date" id="doctor-visit" name="doctor-visit" required />
-        <button type="button" onclick="nextStep(5)">Weiter</button>
-        <button type="button" onclick="prevStep(3)">Zurück</button>
-      </div>
-      <div class="form-group hidden" id="step-5">
-        <h2>Informationen des Mitarbeiters</h2>
-        <div class="summary-box" id="summary"></div>
-      </div>
-    </form>
-  </div>
+			<div class="form-group hidden" id="step-2">
+				<label for="duration">Dauer der Krankheit:</label>
+				<input type="date" id="duration-start" name="duration-start" required /> bis
+				<input type="date" id="duration-end" name="duration-end" required />
+				<button type="button" onclick="nextStep(3)">Weiter</button>
+				<button type="button" onclick="prevStep(1)">Zurück</button>
+			</div>
+			<div class="form-group hidden" id="step-3">
+				<div class="checkbox-group">
+					<div>
+						<input type="checkbox" id="first-certification" name="certification-type" value="Erstbescheinigung" />
+						<label for="first-certification">Erstbescheinigung</label>
+					</div>
+					<div>
+						<input type="checkbox" id="follow-up-certification" name="certification-type" value="Folgebescheinigung" />
+						<label for="follow-up-certification">Folgebescheinigung</label>
+					</div>
+				</div>
+				<button type="button" onclick="nextStep(4)">Weiter</button>
+				<button type="button" onclick="prevStep(2)">Zurück</button>
+			</div>
+			<div class="form-group hidden" id="step-4">
+				<label for="doctor-visit">Der Arztbesuch war am:</label>
+				<input type="date" id="doctor-visit" name="doctor-visit" required />
+				<button type="button" onclick="nextStep(5)">Weiter</button>
+				<button type="button" onclick="prevStep(3)">Zurück</button>
+			</div>
+			<div class="form-group hidden" id="step-5">
+				<h2>Informationen des Mitarbeiters</h2>
+				<div class="summary-box" id="summary"></div>
+			</div>
+		</form>
+	</div>
 
-  <div class="overlay hidden" id="image-options-overlay">
-    <div class="options-popup">
-      <button type="button" id="take-photo-btn">Neues Foto aufnehmen</button>
-      <button type="button" id="choose-from-gallery-btn">Aus Galerie wählen</button>
-      <button type="button" id="cancel-image-upload-btn">Abbrechen</button>
-    </div>
-  </div>
+	<div class="overlay hidden" id="image-options-overlay">
+		<div class="options-popup">
+			<button type="button" id="take-photo-btn">Neues Foto aufnehmen</button>
+			<button type="button" id="choose-from-gallery-btn">Aus Galerie wählen</button>
+			<button type="button" id="cancel-image-upload-btn">Abbrechen</button>
+		</div>
+	</div>
 
-  <script>
-    let currentUser = {};
-    let sickNoteImageData = null; // To store the base64 image data
+	<script>
+		// 1. BEISPIELDATEN: Die Liste der Mitarbeiter mit allen benötigten Informationen
+		// PASSEN SIE DIESES ARRAY MIT IHREN ECHTEN DATEN AN!
+		const employeeData = [
+			{ lastname: "Certjuk", firstname: "Fedor", pn: "35928" },
+			{ lastname: "Hirsch", firstname: "Alexander", pn: "37934" },
+			{ lastname: "Kaan", firstname: "Aydindurmus", pn: "53131" },
+			{ lastname: "Schmailzl", firstname: "Stefanie", pn: "38822" },
+			{ lastname: "Arbesmeier", firstname: "Beate", pn: "38836" },
+			{ lastname: "Weizel", firstname: "Valentina", pn: "55160" },
+			{ lastname: "Kryeziu", firstname: "Zerina", pn: "58189" },
+			{ lastname: "Krasniqi-Tafilaj", firstname: "Vlora", pn: "58605" },
+			{ lastname: "Orlowska", firstname: "Dorota", pn: "55720" },
+			{ lastname: "Kolb", firstname: "Christian", pn: "42404" },
+			{ lastname: "Petrus", firstname: "Georg", pn: "32174" },
+			{ lastname: "Torru", firstname: "Massimiliano", pn: "38753" },
+			{ lastname: "Braun", firstname: "Johann", pn: "27283" },
+			{ lastname: "Schneider", firstname: "Svetlana", pn: "38881" },
+			{ lastname: "Albert", firstname: "Eugenia", pn: "39434" },
+			{ lastname: "Ino", firstname: "Sefa", pn: "55699" },
+			{ lastname: "Visoina", firstname: "Stefan", pn: "56981" },
+			{ lastname: "Duman", firstname: "Nizamettin", pn: "27958" },
+			{ lastname: "Malicevic", firstname: "Tufo", pn: "33741" },
+			{ lastname: "Höckendorf", firstname: "Silke", pn: "38848" },
+			{ lastname: "Letz", firstname: "Michael", pn: "42133" },
+			{ lastname: "Thom", firstname: "Helma", pn: "73144" },
+			{ lastname: "Cotea", firstname: "Laurentiu", pn: "60909" },
+			{ lastname: "Pichl", firstname: "Johann", pn: "73088" },
+			{ lastname: "Abbas", firstname: "Sepan", pn: "55052" },
+			{ lastname: "Qasimi", firstname: "Mohammad", pn: "55047" },
+			{ lastname: "Seferi", firstname: "Arian", pn: "58396" },
+			{ lastname: "Halil", firstname: "Bugari", pn: "58186" },
+			{ lastname: "Bujari", firstname: "Kreshnik", pn: "56220" },
+			{ lastname: "Kati", firstname: "Asya", pn: "60911" },
+			{ lastname: "Musabelliu", firstname: "Erind", pn: "60940" },
+			{ lastname: "Kazakov", firstname: "Angel", pn: "60945" },
+			{ lastname: "Muslumov", firstname: "Elmar", pn: "54806" },
+			{ lastname: "Bokhanov", firstname: "Kirill", pn: "61673" },
+			{ lastname: "Hristov", firstname: "Aleko", pn: "61110" },
+			{ lastname: "Berisha", firstname: "Qlirim", pn: "61464" },
+			{ lastname: "Seferi", firstname: "Kaltrina", pn: "61260" },
+			{ lastname: "Peremjaškin", firstname: "Thomas", pn: "61463" },
+			{ lastname: "Jahaj", firstname: "Meriton", pn: "56221" },
+			{ lastname: "Kocu", firstname: "Hasan", pn: "33650" },
+			{ lastname: "Kalocai", firstname: "Gabriel", pn: "39783" },
+			{ lastname: "Afzal", firstname: "Toseef", pn: "54881" },
+			{ lastname: "Böhm", firstname: "Manfred", pn: "28138" },
+			{ lastname: "Wegrampf", firstname: "Svea", pn: "54893" },
+			{ lastname: "Gettinger", firstname: "Maria", pn: "38389" },
+			{ lastname: "Königer", firstname: "Dagmar", pn: "38187" },
+			{ lastname: "Natterer", firstname: "Natscha", pn: "53668" },
+			{ lastname: "Fomina", firstname: "Svetlana", pn: "54826" },
+			{ lastname: "Berzescu", firstname: "Mariana", pn: "54823" },
+			{ lastname: "Kati", firstname: "Buket", pn: "55575" },
+			{ lastname: "Gerr", firstname: "Eugen", pn: "38939" },
+			{ lastname: "Dessert", firstname: "Ivan", pn: "42022" },
+			{ lastname: "Zaft", firstname: "Nadja", pn: "38825" },
+			{ lastname: "Macarov", firstname: "Vitalii", pn: "54902" },
+			{ lastname: "Bittmann", firstname: "Jennifer", pn: "38815" },
+			{ lastname: "Lysenko", firstname: "Vitaly", pn: "55441" },
+			{ lastname: "Muslumov", firstname: "Mayis", pn: "54807" },
+			{ lastname: "Ilieva", firstname: "Galya", pn: "55428" },
+			{ lastname: "Kaya", firstname: "Muratcan", pn: "55939" },
+			{ lastname: "Tennant", firstname: "George", pn: "56955" },
+			{ lastname: "Moumin-Oglou", firstname: "Nteniz", pn: "58148" },
+			{ lastname: "Siampan", firstname: "Semich", pn: "58207" },
+			{ lastname: "Yusein", firstname: "Selman", pn: "58929" },
+			{ lastname: "Korkmaz", firstname: "Ömer", pn: "60454" },
+			{ lastname: "Tafilaj", firstname: "Sadudin", pn: "61026" },
+			{ lastname: "Maul", firstname: "Eduard", pn: "53196" },
+			{ lastname: "Meradzhanova", firstname: "Silviya", pn: "61395" },
+			{ lastname: "Qarri", firstname: "Seid", pn: "61694" },
+			{ lastname: "Japic", firstname: "Aladin", pn: "54963" },
+			{ lastname: "Bratu", firstname: "Stefania-Claudia", pn: "62100" },
+			{ lastname: "Gettinger", firstname: "Alexander", pn: "37047" },
+			{ lastname: "Fischer", firstname: "David", pn: "37124" },
+			{ lastname: "Berthaler", firstname: "Axel", pn: "38123" },
+			{ lastname: "Wittmann", firstname: "Herbert", pn: "27123" },
+			{ lastname: "Stempizki", firstname: "Alexander", pn: "51234" }
+		].sort((a, b) => a.lastname.localeCompare(b.lastname)); // Alphabetisch sortieren
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const savedUser = localStorage.getItem('currentUser');
-        if (savedUser) {
-            currentUser = JSON.parse(savedUser);
-            document.getElementById('user-lastname').value = currentUser.lastname;
-            document.getElementById('user-firstname').value = currentUser.firstname;
-            document.getElementById('user-pn').value = currentUser.pn;
-            nextStep(1);
-        } else {
-            nextStep(0);
-        }
+		let currentUser = {};
+		let sickNoteImageData = null; // To store the base64 image data
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(reg => console.log('Service Worker registriert', reg))
-                .catch(err => console.error('Service Worker Registrierung fehlgeschlagen', err));
-        }
+		document.addEventListener('DOMContentLoaded', () => {
+			const savedUser = localStorage.getItem('currentUser');
+			if (savedUser) {
+				currentUser = JSON.parse(savedUser);
+				document.getElementById('user-lastname').value = currentUser.lastname;
+				document.getElementById('user-firstname').value = currentUser.firstname;
+				document.getElementById('user-pn').value = currentUser.pn;
+				nextStep(1);
+			} else {
+				nextStep(0);
+			}
 
-        // Event-Listener für das Logo in der Zusammenfassung
-        document.getElementById('company-logo').addEventListener('click', () => {
-            if (document.getElementById('step-5').classList.contains('hidden')) {
-                // Das Logo ist nur in der Zusammenfassung klickbar, um die Optionen anzuzeigen
-                return;
-            }
-            showOptionsPopup();
-        });
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('service-worker.js')
+					.then(reg => console.log('Service Worker registriert', reg))
+					.catch(err => console.error('Service Worker Registrierung fehlgeschlagen', err));
+			}
 
-        // Neue Event-Listener für das Bildoptions-Pop-up
-        document.getElementById('take-photo-btn').addEventListener('click', () => {
-            const input = document.getElementById('sick-note-image');
-            input.setAttribute('capture', 'environment'); // Kamera öffnen
-            input.click();
-            document.getElementById('image-options-overlay').classList.add('hidden'); // Pop-up schließen
-        });
+			// Event-Listener für das Logo in der Zusammenfassung
+			document.getElementById('company-logo').addEventListener('click', () => {
+				if (document.getElementById('step-5').classList.contains('hidden')) {
+					return;
+				}
+				showOptionsPopup();
+			});
 
-        document.getElementById('choose-from-gallery-btn').addEventListener('click', () => {
-            const input = document.getElementById('sick-note-image');
-            input.removeAttribute('capture'); // Galerie öffnen
-            input.click();
-            document.getElementById('image-options-overlay').classList.add('hidden'); // Pop-up schließen
-        });
+			// Neue Event-Listener für das Bildoptions-Pop-up
+			document.getElementById('take-photo-btn').addEventListener('click', () => {
+				const input = document.getElementById('sick-note-image');
+				input.setAttribute('capture', 'environment');
+				input.click();
+				document.getElementById('image-options-overlay').classList.add('hidden');
+			});
 
-        document.getElementById('cancel-image-upload-btn').addEventListener('click', () => {
-            document.getElementById('image-options-overlay').classList.add('hidden'); // Pop-up schließen
-        });
-    });
+			document.getElementById('choose-from-gallery-btn').addEventListener('click', () => {
+				const input = document.getElementById('sick-note-image');
+				input.removeAttribute('capture');
+				input.click();
+				document.getElementById('image-options-overlay').classList.add('hidden');
+			});
 
-    function saveUserInfoAndNextStep(step) {
-      const lastname = document.getElementById('user-lastname').value;
-      const firstname = document.getElementById('user-firstname').value;
-      const pn = document.getElementById('user-pn').value;
+			document.getElementById('cancel-image-upload-btn').addEventListener('click', () => {
+				document.getElementById('image-options-overlay').classList.add('hidden');
+			});
 
-      if (!lastname || !firstname || !pn) {
-        alert('Bitte füllen Sie alle Felder aus.');
-        return;
-      }
+			// 2. AUTOSUGGEST IMPLEMENTIERUNG
+			const lastnameInput = document.getElementById('user-lastname');
+			const employeeList = document.getElementById('employee-list');
 
-      currentUser = { lastname, firstname, pn };
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
-      nextStep(step);
-    }
+			// 3. Eingabeüberwachung: Beim Tippen wird die Liste gefiltert
+			lastnameInput.addEventListener('input', function() {
+				const input = this.value.toLowerCase();
+				if (input.length > 0) {
+					// 4. Filtern der Mitarbeiterdaten (startet mit der Eingabe)
+					const filteredEmployees = employeeData.filter(employee =>
+						employee.lastname.toLowerCase().startsWith(input)
+					);
 
-    function nextStep(step) {
-      const formSteps = document.querySelectorAll('.form-group');
-      formSteps.forEach(s => s.classList.add('hidden'));
-      document.getElementById('step-' + step).classList.remove('hidden');
+					displaySuggestions(filteredEmployees);
+				} else {
+					employeeList.innerHTML = ''; // Liste leeren
+					employeeList.style.display = 'none'; // Liste verstecken
+				}
+			});
 
-      if (step === 5) {
-        showSummary();
-      }
-    }
+			// Listener, um die Liste zu verstecken, wenn der Fokus verloren geht (mit Verzögerung)
+			lastnameInput.addEventListener('blur', () => {
+				// Eine kleine Verzögerung, damit der Klick auf ein Listenelement noch registriert wird
+				setTimeout(() => {
+					employeeList.style.display = 'none';
+				}, 200);
+			});
 
-    function prevStep(step) {
-      const formSteps = document.querySelectorAll('.form-group');
-      formSteps.forEach(s => s.classList.add('hidden'));
-      document.getElementById('step-' + step).classList.remove('hidden');
-      // Reset image upload state if going back from step 1
-      if (step === 1) {
-        document.getElementById('sick-note-image').value = '';
-        document.getElementById('uploaded-image').style.display = 'none';
-        document.getElementById('goToSummaryFromImage').classList.add('hidden'); // Hide "Zur Zusammenfassung" button
-        sickNoteImageData = null;
-        // Re-enable form fields when going back
-        document.getElementById('report-date').disabled = false;
-        document.getElementById('report-time').disabled = false;
-      }
-    }
+			// Die Liste anzeigen, wenn man in das Feld klickt und schon etwas eingegeben wurde
+			lastnameInput.addEventListener('focus', function() {
+				if (this.value.length > 0) {
+					employeeList.style.display = 'block';
+				}
+			});
 
-    // --- New functions for image upload ---
+			// Funktion zur Anzeige der Vorschläge
+			function displaySuggestions(employees) {
+				employeeList.innerHTML = ''; // Alte Vorschläge löschen
 
-    function triggerFileUpload() {
-      document.getElementById('image-options-overlay').classList.remove('hidden');
-    }
+				if (employees.length > 0) {
+					employees.forEach(employee => {
+						const li = document.createElement('li');
+						// Zeigt Nachname und Vorname an
+						li.textContent = `${employee.lastname}, ${employee.firstname}`;
+						li.dataset.lastname = employee.lastname;
+						li.dataset.firstname = employee.firstname;
+						li.dataset.pn = employee.pn;
 
-    function handleImageUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const imgElement = document.getElementById('uploaded-image');
-          imgElement.src = e.target.result;
-          imgElement.style.display = 'block';
-          sickNoteImageData = e.target.result; // Store the image data
+						// 5. Auswahlfunktion: Beim Klick wird automatisch befüllt
+						// Wir verwenden mousedown, um den Event auszulösen, bevor der blur-Event das Element versteckt
+						li.addEventListener('mousedown', selectEmployee);
 
-          // Show the "Zur Zusammenfassung" button
-          document.getElementById('goToSummaryFromImage').classList.remove('hidden');
+						employeeList.appendChild(li);
+					});
+					employeeList.style.display = 'block';
+				} else {
+					employeeList.style.display = 'none';
+				}
+			}
 
-          // Disable form fields when an image is uploaded
-          document.getElementById('report-date').disabled = true;
-          document.getElementById('report-time').disabled = true;
-        };
-        reader.readAsDataURL(file);
-      } else {
-        document.getElementById('uploaded-image').style.display = 'none';
-        document.getElementById('goToSummaryFromImage').classList.add('hidden'); // Hide "Zur Zusammenfassung" button
-        sickNoteImageData = null;
-        // Re-enable form fields if no image is selected
-        document.getElementById('report-date').disabled = false;
-        document.getElementById('report-time').disabled = false;
-      }
-    }
+			// Funktion, die beim Klick auf einen Listeneintrag ausgeführt wird
+			function selectEmployee(event) {
+				const selectedEmployee = event.currentTarget.dataset;
 
-    function validateStep1AndNext(step) {
-      const reportDate = document.getElementById("report-date").value;
-      const reportTime = document.getElementById("report-time").value;
+				// Füllt die Formularfelder automatisch
+				document.getElementById('user-lastname').value = selectedEmployee.lastname;
+				document.getElementById('user-firstname').value = selectedEmployee.firstname;
+				document.getElementById('user-pn').value = selectedEmployee.pn;
 
-      if (!sickNoteImageData && (!reportDate || !reportTime)) {
-        alert('Bitte füllen Sie die Felder für Datum und Uhrzeit aus ODER laden Sie ein Bild der Krankmeldung hoch.');
-        return;
-      }
+				employeeList.style.display = 'none'; // Liste verstecken
 
-      if (sickNoteImageData && (reportDate || reportTime)) {
-        alert('Bitte wählen Sie entweder die Formularfelder aus ODER laden Sie ein Bild hoch, nicht beides.');
-        return;
-      }
-      nextStep(step);
-    }
+				// Optional: Fokus auf das nächste Feld setzen
+				document.getElementById('user-firstname').focus();
+			}
 
-    function showSummary() {
-      const summaryBox = document.getElementById("summary");
-      if (sickNoteImageData) {
-        summaryBox.innerHTML = `
+		});
+
+		function saveUserInfoAndNextStep(step) {
+			const lastname = document.getElementById('user-lastname').value;
+			const firstname = document.getElementById('user-firstname').value;
+			const pn = document.getElementById('user-pn').value;
+
+			if (!lastname || !firstname || !pn) {
+				alert('Bitte füllen Sie alle Felder aus.');
+				return;
+			}
+
+			currentUser = { lastname, firstname, pn };
+			localStorage.setItem('currentUser', JSON.stringify(currentUser));
+			nextStep(step);
+		}
+
+		function nextStep(step) {
+			const formSteps = document.querySelectorAll('.form-group');
+			formSteps.forEach(s => s.classList.add('hidden'));
+			document.getElementById('step-' + step).classList.remove('hidden');
+
+			if (step === 5) {
+				showSummary();
+			}
+		}
+
+		function prevStep(step) {
+			const formSteps = document.querySelectorAll('.form-group');
+			formSteps.forEach(s => s.classList.add('hidden'));
+			document.getElementById('step-' + step).classList.remove('hidden');
+			// Reset image upload state if going back from step 1
+			if (step === 1) {
+				document.getElementById('sick-note-image').value = '';
+				document.getElementById('uploaded-image').style.display = 'none';
+				document.getElementById('goToSummaryFromImage').classList.add('hidden'); // Hide "Zur Zusammenfassung" button
+				sickNoteImageData = null;
+				// Re-enable form fields when going back
+				document.getElementById('report-date').disabled = false;
+				document.getElementById('report-time').disabled = false;
+			}
+		}
+
+		// --- Functions for image upload ---
+
+		function triggerFileUpload() {
+			document.getElementById('image-options-overlay').classList.remove('hidden');
+		}
+
+		function handleImageUpload(event) {
+			const file = event.target.files[0];
+			if (file) {
+				const reader = new FileReader();
+				reader.onload = function(e) {
+					const imgElement = document.getElementById('uploaded-image');
+					imgElement.src = e.target.result;
+					imgElement.style.display = 'block';
+					sickNoteImageData = e.target.result; // Store the image data
+
+					// Show the "Zur Zusammenfassung" button
+					document.getElementById('goToSummaryFromImage').classList.remove('hidden');
+
+					// Disable form fields when an image is uploaded
+					document.getElementById('report-date').disabled = true;
+					document.getElementById('report-time').disabled = true;
+				};
+				reader.readAsDataURL(file);
+			} else {
+				document.getElementById('uploaded-image').style.display = 'none';
+				document.getElementById('goToSummaryFromImage').classList.add('hidden'); // Hide "Zur Zusammenfassung" button
+				sickNoteImageData = null;
+				// Re-enable form fields if no image is selected
+				document.getElementById('report-date').disabled = false;
+				document.getElementById('report-time').disabled = false;
+			}
+		}
+
+		function validateStep1AndNext(step) {
+			const reportDate = document.getElementById("report-date").value;
+			const reportTime = document.getElementById("report-time").value;
+
+			if (!sickNoteImageData && (!reportDate || !reportTime)) {
+				alert('Bitte füllen Sie die Felder für Datum und Uhrzeit aus ODER laden Sie ein Bild der Krankmeldung hoch.');
+				return;
+			}
+
+			if (sickNoteImageData && (reportDate || reportTime)) {
+				alert('Bitte wählen Sie entweder die Formularfelder aus ODER laden Sie ein Bild hoch, nicht beides.');
+				return;
+			}
+			nextStep(step);
+		}
+
+		function showSummary() {
+			const summaryBox = document.getElementById("summary");
+			if (sickNoteImageData) {
+				summaryBox.innerHTML = `
           <p><span>Personalnummer:</span> <b>${currentUser.pn}</b></p>
           <div class="summary-image-container">
             <img src="${sickNoteImageData}" alt="Hochgeladenes Bild der Krankmeldung">
           </div>
         `;
-      } else {
-        const reportDate = document.getElementById("report-date").value.split("-").reverse().join(".");
-        const reportTime = document.getElementById("report-time").value;
-        const durationStart = document.getElementById("duration-start").value.split("-").reverse().join(".");
-        const durationEnd = document.getElementById("duration-end").value.split("-").reverse().join(".");
-        const firstCertification = document.getElementById("first-certification").checked ? "✓" : "-";
-        const followUpCertification = document.getElementById("follow-up-certification").checked ? "✓" : "-";
-        const doctorVisit = document.getElementById("doctor-visit").value.split("-").reverse().join(".");
+			} else {
+				const reportDate = document.getElementById("report-date").value.split("-").reverse().join(".");
+				const reportTime = document.getElementById("report-time").value;
+				const durationStart = document.getElementById("duration-start").value.split("-").reverse().join(".");
+				const durationEnd = document.getElementById("duration-end").value.split("-").reverse().join(".");
+				const firstCertification = document.getElementById("first-certification").checked ? "✓" : "-";
+				const followUpCertification = document.getElementById("follow-up-certification").checked ? "✓" : "-";
+				const doctorVisit = document.getElementById("doctor-visit").value.split("-").reverse().join(".");
 
-        summaryBox.innerHTML = `
+				summaryBox.innerHTML = `
           <p><span>Name:</span> <b>${currentUser.lastname}</b></p>
           <p><span>Vorname:</span> <b>${currentUser.firstname}</b></p>
           <p><span>Personalnummer:</span> <b>${currentUser.pn}</b></p>
@@ -593,103 +896,95 @@
           <p><span>Folgebescheinigung:</span> <b>${followUpCertification}</b></p>
           <p><span>Arztbesuch am:</span> <b>${doctorVisit}</b></p>
         `;
-      }
-    }
+			}
+		}
 
-    // Function to handle printing
-    function printSummary() {
-        window.print();
-    }
+		// Function to handle printing
+		function printSummary() {
+			window.print();
+		}
 
-    // Function to create and show the options popup
-    function showOptionsPopup() {
-        const overlay = document.createElement('div');
-        overlay.classList.add('overlay');
+		// Function to create and show the options popup
+		function showOptionsPopup() {
+			const overlay = document.createElement('div');
+			overlay.classList.add('overlay');
 
-        const popup = document.createElement('div');
-        popup.classList.add('options-popup');
+			const popup = document.createElement('div');
+			popup.classList.add('options-popup');
 
-        const shareButton = document.createElement('button');
-        shareButton.textContent = 'Teilen';
-        shareButton.onclick = () => {
-            shareSummary();
-            document.body.removeChild(overlay);
-        };
-        popup.appendChild(shareButton);
+			const shareButton = document.createElement('button');
+			shareButton.textContent = 'Teilen';
+			shareButton.onclick = () => {
+				shareSummary();
+				document.body.removeChild(overlay);
+			};
+			popup.appendChild(shareButton);
 
-        const printButton = document.createElement('button'); // New Print Button
-        printButton.textContent = 'Drucken';
-        printButton.onclick = () => {
-            printSummary();
-            document.body.removeChild(overlay);
-        };
-        popup.appendChild(printButton);
+			const printButton = document.createElement('button'); // New Print Button
+			printButton.textContent = 'Drucken';
+			printButton.onclick = () => {
+				printSummary();
+				document.body.removeChild(overlay);
+			};
+			popup.appendChild(printButton);
 
-        const restartButton = document.createElement('button');
-        restartButton.textContent = 'Von vorne beginnen';
-        restartButton.onclick = () => {
-            restartForm();
-            document.body.removeChild(overlay);
-        };
-        popup.appendChild(restartButton);
+			const restartButton = document.createElement('button');
+			restartButton.textContent = 'Von vorne beginnen';
+			restartButton.onclick = () => {
+				restartForm();
+				document.body.removeChild(overlay);
+			};
+			popup.appendChild(restartButton);
 
-        const closeButton = document.createElement('button');
-        closeButton.textContent = 'Abbrechen';
-        closeButton.onclick = () => {
-            document.body.removeChild(overlay);
-        };
-        popup.appendChild(closeButton);
+			const closeButton = document.createElement('button');
+			closeButton.textContent = 'Abbrechen';
+			closeButton.onclick = () => {
+				document.body.removeChild(overlay);
+			};
+			popup.appendChild(closeButton);
 
-        overlay.appendChild(popup);
-        document.body.appendChild(overlay);
-    }
+			overlay.appendChild(popup);
+			document.body.appendChild(overlay);
+		}
 
-    // Function to handle sharing
-    function shareSummary() {
-        const summaryText = document.getElementById('summary').innerText;
-        if (navigator.share) {
-            navigator.share({
-                title: 'Krankmeldung Zusammenfassung',
-                text: summaryText,
-            }).then(() => {
-                console.log('Zusammenfassung geteilt!');
-            }).catch((error) => {
-                console.error('Fehler beim Teilen:', error);
-                alert('Teilen fehlgeschlagen oder abgebrochen.');
-            });
-        } else {
-            // Fallback for browsers that do not support navigator.share
-            alert('Ihr Browser unterstützt die Teilen-Funktion nicht direkt. Bitte kopieren Sie den Text manuell:\n\n' + summaryText);
-            // Optionally, you can copy to clipboard automatically
-            // navigator.clipboard.writeText(summaryText).then(() => {
-            //     alert('Zusammenfassung wurde in die Zwischenablage kopiert!');
-            // }).catch(err => {
-            //     console.error('Kopieren fehlgeschlagen:', err);
-            // });
-        }
-    }
+		// Function to handle sharing
+		function shareSummary() {
+			const summaryText = document.getElementById('summary').innerText;
+			if (navigator.share) {
+				navigator.share({
+					title: 'Krankmeldung Zusammenfassung',
+					text: summaryText,
+				}).then(() => {
+					console.log('Zusammenfassung geteilt!');
+				}).catch((error) => {
+					console.error('Fehler beim Teilen:', error);
+					alert('Teilen fehlgeschlagen oder abgebrochen.');
+				});
+			} else {
+				// Fallback for browsers that do not support navigator.share
+				alert('Ihr Browser unterstützt die Teilen-Funktion nicht direkt. Bitte kopieren Sie den Text manuell:\n\n' + summaryText);
+			}
+		}
 
-    // Function to restart the form
-    function restartForm() {
-        // localStorage.removeItem('currentUser'); // Diese Zeile ist auskommentiert, damit der Name gespeichert bleibt
-        document.getElementById('sick-leave-form').reset(); // Setzt alle Felder auf ihren Anfangszustand zurück
+		// Function to restart the form
+		function restartForm() {
+			document.getElementById('sick-leave-form').reset(); // Setzt alle Felder auf ihren Anfangszustand zurück
 
-        // Da .reset() auch die Benutzerdatenfelder zurücksetzen würde,
-        // müssen wir sie nach dem Reset wieder mit den gespeicherten Daten füllen.
-        document.getElementById('user-lastname').value = currentUser.lastname;
-        document.getElementById('user-firstname').value = currentUser.firstname;
-        document.getElementById('user-pn').value = currentUser.pn;
+			// Setzt die gespeicherten Benutzerdaten wieder ein
+			document.getElementById('user-lastname').value = currentUser.lastname;
+			document.getElementById('user-firstname').value = currentUser.firstname;
+			document.getElementById('user-pn').value = currentUser.pn;
 
-        sickNoteImageData = null; // Löscht die Bilddaten
-        document.getElementById('uploaded-image').style.display = 'none'; // Versteckt das Bild
-        document.getElementById('goToSummaryFromImage').classList.add('hidden'); // Versteckt den "Zur Zusammenfassung" Button
-        document.getElementById('report-date').disabled = false; // Aktiviert Datumsfeld
-        document.getElementById('report-time').disabled = false; // Aktiviert Uhrzeitfeld
+			sickNoteImageData = null; // Löscht die Bilddaten
+			document.getElementById('uploaded-image').style.display = 'none'; // Versteckt das Bild
+			document.getElementById('goToSummaryFromImage').classList.add('hidden'); // Versteckt den "Zur Zusammenfassung" Button
+			document.getElementById('report-date').disabled = false; // Aktiviert Datumsfeld
+			document.getElementById('report-time').disabled = false; // Aktiviert Uhrzeitfeld
 
-        // Geht zum Schritt 1 zurück, wo die Krankmeldung beginnt (nach den persönlichen Daten)
-        nextStep(1);
-    }
-
-  </script>
+			// Geht zum Schritt 1 zurück, wo die Krankmeldung beginnt
+			nextStep(0);
+		}
+	</script>
 </body>
+
 </html>
