@@ -655,15 +655,18 @@
 		let sickNoteImageData = null; // To store the base64 image data
 
 		document.addEventListener('DOMContentLoaded', () => {
-			const savedUser = localStorage.getItem('currentUser');
-			if (savedUser) {
-				currentUser = JSON.parse(savedUser);
-				document.getElementById('user-lastname').value = currentUser.lastname;
-				document.getElementById('user-firstname').value = currentUser.firstname;
-				document.getElementById('user-pn').value = currentUser.pn;
-				nextStep(1);
-			} else {
-				nextStep(0);
+	const savedUser = localStorage.getItem('currentUser');
+
+	// Gespeicherte Benutzerdaten laden und Felder vorausfüllen
+	if (savedUser) {
+		currentUser = JSON.parse(savedUser);
+		document.getElementById('user-lastname').value = currentUser.lastname;
+		document.getElementById('user-firstname').value = currentUser.firstname;
+		document.getElementById('user-pn').value = currentUser.pn;
+	}
+
+	// **Startet IMMER bei Schritt 0 (Namenseingabe)**
+	nextStep(0);
 			}
 
 			if ('serviceWorker' in navigator) {
