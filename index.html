@@ -665,11 +665,11 @@
 		document.getElementById('user-pn').value = currentUser.pn;
 	}
 
-	// **Startet IMMER bei Schritt 0 (Namenseingabe)**
+	// Startet IMMER bei Schritt 0 (Namenseingabe), auch wenn Daten gespeichert sind.
 	nextStep(0);
-			}
 
-			if ('serviceWorker' in navigator) {
+	if ('serviceWorker' in navigator) {
+
 				navigator.serviceWorker.register('service-worker.js')
 					.then(reg => console.log('Service Worker registriert', reg))
 					.catch(err => console.error('Service Worker Registrierung fehlgeschlagen', err));
