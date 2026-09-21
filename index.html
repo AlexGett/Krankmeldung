@@ -6,6 +6,8 @@
 	<title>Krankmeldung</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="manifest" href="manifest.json">
+	<!-- jsPDF Bibliothek für die direkte PDF-Ererugung auf Mobilgeräten -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 	<style>
 		body {
 			font-family: Arial, sans-serif;
@@ -429,13 +431,13 @@
 				<button type="button" onclick="prevStep(3)">Zurück</button>
 			</div>
 			
-			<!-- Schritt 5: Button mit automatischem Fallback -->
+			<!-- Schritt 5: Echter PDF-Erstellungs-Button -->
 			<div class="form-group hidden" id="step-5">
 				<h2>Informationen des Mitarbeiters</h2>
 				<div class="summary-box" id="summary"></div>
 				
 				<div style="margin-top: 20px; width: 100%; max-width: 400px;">
-					<button type="button" onclick="printSummary()" style="margin-bottom: 10px; background-color: #2c3e50;">Drucken / Als PDF speichern</button>
+					<button type="button" onclick="generateAndSharePDF()" style="margin-bottom: 10px; background-color: #27ae60;">PDF erstellen & senden</button>
 					<button type="button" onclick="restartForm()" style="background-color: #c0392b;">Von vorne beginnen</button>
 				</div>
 			</div>
@@ -743,23 +745,66 @@
 			}
 		}
 
-		function printSummary() {
-			// Versuche das native Drucken aufzurufen
-			window.print();
+		function generateAndSharePDF() {
+			const { jsPDF } = window.jspdf;
+			const doc = new jsPDF();
 
-			// Fallback für mobile Geräte (wie iOS/Android Web-Apps), 
-			// falls window.print() blockiert wird und nichts passiert:
-			setTimeout(() => {
-				const summaryText = document.getElementById('summary').innerText;
-				if (navigator.share) {
-					navigator.share({
-						title: 'Krankmeldung',
-						text: summaryText,
-					}).catch(() => {
-						// Falls der Nutzer abbricht, ignorieren
-					});
-				}
-			}, 500);
+			doc.setFont("helvetica", "bold");
+			doc.setFontSize(18);
+			doc.text("Krankmeldung", 105, 20, { align: "center" });
+
+			doc.setFontSize(12);
+			doc.setFont("helvetica", "normal");
+
+			let y = 35;
+			if (sickNoteImageData) {
+				doc.text(`Name: ${currentUser.lastname}`, 20, y); y += 10;
+				doc.text(`Vorname: ${currentUser.firstname}`, 20, y); y += 10;
+				doc.text(`Personalnummer: ${currentUser.pn}`, 20, y); y += 15;
+				doc.text("Krankmeldung wurde als Bild hochgeladen.", 20, y);
+			} else {
+				const reportDate = document.getElementById("report-date").value.split("-").reverse().join(".");
+				const reportTime = document.getElementById("report-time").value;
+				const durationStart = document.getElementById("duration-start").value.split("-").reverse().join(".");
+				const durationEnd = document.getElementById("duration-end").value.split("-").reverse().join(".");
+				const firstCertification = document.getElementById("first-certification").checked ? "Ja" : "Nein";
+				const followUpCertification = document.getElementById("follow-up-certification").checked ? "Ja" : "Nein";
+				const doctorVisit = document.getElementById("doctor-visit").value.split("-").reverse().join(".");
+
+				const lines = [
+					`Name: ${currentUser.lastname}`,
+					`Vorname: ${currentUser.firstname}`,
+					`Personalnummer: ${currentUser.pn}`,
+					`Krankmeldung bei SMP: ${reportDate} um ${reportTime} Uhr`,
+					`Dauer von: ${durationStart} bis ${durationEnd}`,
+					`Erstbescheinigung: ${firstCertification}`,
+					`Folgebescheinigung: ${followUpCertification}`,
+					`Arztbesuch am: ${doctorVisit}`
+				];
+
+				lines.forEach(line => {
+					doc.text(line, 20, y);
+					y += 10;
+				});
+			}
+
+			// Als echte PDF-Datei erzeugen
+			const pdfBlob = doc.output('blob');
+			const file = new File([pdfBlob], "Krankmeldung.pdf", { type: "application/pdf" });
+
+			// Direkt versuchen über das System-Teilen-Menü (Outlook, WhatsApp, In Dateien sichern etc.) zu teilen
+			if (navigator.canShare && navigator.canShare({ files: [file] })) {
+				navigator.share({
+					files: [file],
+					title: 'Krankmeldung',
+					text: 'Hier ist die Krankmeldung als PDF.'
+				}).catch((error) => {
+					console.log('Teilen abgebrochen', error);
+				});
+			} else {
+				// Fallback: Direkt als Download speichern
+				doc.save("Krankmeldung.pdf");
+			}
 		}
 
 		function restartForm() {
