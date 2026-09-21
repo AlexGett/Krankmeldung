@@ -6,8 +6,10 @@
 	<title>Krankmeldung</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="manifest" href="manifest.json">
-	<!-- html2pdf Bibliothek -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+	<!-- NEU: Bibliotheken für den perfekten PDF-Export (html2canvas & jsPDF) -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 	<style>
 		body {
 			font-family: Arial, sans-serif;
@@ -235,132 +237,11 @@
 			max-height: 100%;
 			object-fit: contain;
 		}
-
-		/* DRUCK- UND PDF-LAYOUT (@media print greift dank addClass direkt beim Generieren) */
-		@media print {
-			body {
-				font-size: 12pt;
-				margin-top: 50px;
-			}
-
-			#step-0,
-			#step-1,
-			#step-2,
-			#step-3,
-			#step-4 {
-				display: none !important;
-			}
-
-			#step-5 {
-				display: block !important;
-			}
-
-			input,
-			button,
-			.checkbox-group,
-			#employee-list,
-			.image-upload-section,
-			.overlay,
-			.options-popup {
-				display: none !important;
-			}
-
-			.form-container {
-				width: 100%;
-				margin: 0;
-				padding: 0;
-				position: relative;
-				box-sizing: border-box;
-			}
-
-			.logo-container {
-				position: absolute;
-				top: -70px;
-				right: 10px;
-			}
-
-			.logo-container img {
-				height: 80px;
-				max-width: 200px;
-			}
-
-			.summary-box {
-				border: 2px solid #000;
-				background-color: #ffffff;
-				padding: 10px 20px;
-				width: 100%;
-				max-width: 500px;
-				box-sizing: border-box;
-				text-align: left;
-				margin-top: 20px;
-				margin-left: auto;
-				margin-right: auto;
-				font-size: 10pt;
-				display: flex;
-				flex-direction: column;
-				align-items: flex-start;
-			}
-
-			.summary-box p {
-				margin: 3px 0;
-				width: 100%;
-				display: flex;
-				align-items: baseline;
-				flex-wrap: wrap;
-			}
-
-			.summary-box p span {
-				display: block;
-				flex-basis: 120px;
-				font-weight: normal;
-				text-align: left;
-				padding-right: 10px;
-			}
-
-			.summary-box p b {
-				font-weight: bold;
-				flex-grow: 1;
-				text-align: left;
-				word-break: break-word;
-				margin-left: auto;
-			}
-
-			.summary-image-container {
-				width: 150mm;
-				height: 150mm;
-				margin: 5mm auto 5mm auto;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				overflow: hidden;
-				page-break-inside: avoid;
-				page-break-before: auto;
-				page-break-after: avoid;
-			}
-
-			.summary-image-container img {
-				max-width: 100%;
-				max-height: 100%;
-				object-fit: contain;
-			}
-
-			h1,
-			h2 {
-				text-align: center;
-				font-size: 18pt;
-				margin-bottom: 5px;
-			}
-
-			@page {
-				size: A4;
-				margin: 10mm;
-			}
-		}
 	</style>
 </head>
 
 <body>
-	<div class="form-container">
+	<div class="form-container" id="pdf-export-area">
 		<div class="logo-container">
 			<img id="company-logo" src="https://images.seeklogo.com/logo-png/54/2/motherson-logo-png_seeklogo-544537.png" alt="Firmenlogo" />
 		</div>
@@ -527,14 +408,7 @@
 				document.getElementById('user-firstname').value = currentUser.firstname;
 				document.getElementById('user-pn').value = currentUser.pn;
 			}
-
 			nextStep(0);
-
-			if ('serviceWorker' in navigator) {
-				navigator.serviceWorker.register('service-worker.js')
-					.then(reg => console.log('Service Worker registriert', reg))
-					.catch(err => console.error('Service Worker Registrierung fehlgeschlagen', err));
-			}
 
 			document.getElementById('company-logo').addEventListener('click', () => {
 				if (document.getElementById('step-5').classList.contains('hidden')) {
@@ -669,7 +543,6 @@
 					imgElement.src = e.target.result;
 					imgElement.style.display = 'block';
 					sickNoteImageData = e.target.result;
-
 					document.getElementById('goToSummaryFromImage').classList.remove('hidden');
 					document.getElementById('report-date').disabled = true;
 					document.getElementById('report-time').disabled = true;
@@ -732,26 +605,22 @@
 			}
 		}
 
-		// PDF-Erstellung wendet exakt die Druck-Mediathek-Regeln an
-		function printSummary() {
-			const element = document.body;
-			const opt = {
-				margin:       10,
-				filename:     `Krankmeldung_${currentUser.lastname || 'Mitarbeiter'}.pdf`,
-				image:        { type: 'jpeg', quality: 0.98 },
-				html2canvas:  { scale: 2, useCORS: true },
-				jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-			};
-
-			// Temporär die Druckklasse erzwingen, damit die @media print Formatierung greift
-			document.body.classList.add('printing-pdf');
-
-			html2pdf().set(opt).from(element).save().then(() => {
-				document.body.classList.remove('printing-pdf');
-			}).catch(err => {
-				console.error('Fehler beim Erstellen der PDF:', err);
-				document.body.classList.remove('printing-pdf');
-				alert('Fehler beim Erstellen der PDF-Datei.');
+		// NEU: Exakte 1:1 PDF-Generierung mittels html2canvas & jsPDF
+		function generatePDF() {
+			const element = document.getElementById('pdf-export-area');
+			
+			// Optionen für html2canvas für perfekte Qualität
+			html2canvas(element, { scale: 2, useCORS: true }).then(canvas => {
+				const imgData = canvas.toDataURL('image/png');
+				
+				const { jsPDF } = window.jspdf;
+				const pdf = new jsPDF('p', 'mm', 'a4');
+				
+				const pdfWidth = pdf.internal.pageSize.getWidth();
+				const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+				
+				pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
+				pdf.save(`Krankmeldung_${currentUser.lastname}_${currentUser.firstname}.pdf`);
 			});
 		}
 
@@ -770,13 +639,14 @@
 			};
 			popup.appendChild(shareButton);
 
-			const printButton = document.createElement('button');
-			printButton.textContent = 'PDF herunterladen';
-			printButton.onclick = () => {
-				printSummary();
+			// NEU: Button für den echten 1:1 PDF-Export
+			const pdfButton = document.createElement('button');
+			pdfButton.textContent = 'Als PDF speichern';
+			pdfButton.onclick = () => {
+				generatePDF();
 				document.body.removeChild(overlay);
 			};
-			popup.appendChild(printButton);
+			popup.appendChild(pdfButton);
 
 			const restartButton = document.createElement('button');
 			restartButton.textContent = 'Von vorne beginnen';
@@ -803,14 +673,11 @@
 				navigator.share({
 					title: 'Krankmeldung Zusammenfassung',
 					text: summaryText,
-				}).then(() => {
-					console.log('Zusammenfassung geteilt!');
 				}).catch((error) => {
 					console.error('Fehler beim Teilen:', error);
-					alert('Teilen fehlgeschlagen oder abgebrochen.');
 				});
 			} else {
-				alert('Ihr Browser unterstützt die Teilen-Funktion nicht direkt. Bitte kopieren Sie den Text manuell:\n\n' + summaryText);
+				alert('Teilen wird von diesem Browser nicht unterstützt.');
 			}
 		}
 
