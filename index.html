@@ -429,14 +429,13 @@
 				<button type="button" onclick="prevStep(3)">Zurück</button>
 			</div>
 			
-			<!-- Schritt 5: Feste Buttons statt Pop-up -->
+			<!-- Schritt 5: Direkter Druck-Button -->
 			<div class="form-group hidden" id="step-5">
 				<h2>Informationen des Mitarbeiters</h2>
 				<div class="summary-box" id="summary"></div>
 				
 				<div style="margin-top: 20px; width: 100%; max-width: 400px;">
-					<button type="button" onclick="printSummary()" style="margin-bottom: 10px;">Drucken</button>
-					<button type="button" onclick="shareSummary()" style="margin-bottom: 10px; background-color: #27ae60;">Teilen</button>
+					<button type="button" onclick="printSummary()" style="margin-bottom: 10px; background-color: #2c3e50;">Drucken / Als PDF speichern</button>
 					<button type="button" onclick="restartForm()" style="background-color: #c0392b;">Von vorne beginnen</button>
 				</div>
 			</div>
@@ -747,24 +746,7 @@
 		function printSummary() {
 			setTimeout(() => {
 				window.print();
-			}, 400);
-		}
-
-		function shareSummary() {
-			const summaryText = document.getElementById('summary').innerText;
-			if (navigator.share) {
-				navigator.share({
-					title: 'Krankmeldung Zusammenfassung',
-					text: summaryText,
-				}).then(() => {
-					console.log('Zusammenfassung geteilt!');
-				}).catch((error) => {
-					console.error('Fehler beim Teilen:', error);
-					alert('Teilen fehlgeschlagen oder abgebrochen.');
-				});
-			} else {
-				alert('Ihr Browser unterstützt die Teilen-Funktion nicht direkt. Bitte kopieren Sie den Text manuell:\n\n' + summaryText);
-			}
+			}, 300);
 		}
 
 		function restartForm() {
