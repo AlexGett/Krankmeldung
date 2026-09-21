@@ -30,7 +30,6 @@
 			margin-bottom: 5px;
 		}
 
-		/* Einheitliche Größe für Textfelder, Datum-/Zeit-Eingaben und Buttons */
 		input[type="text"],
 		input[type="date"],
 		input[type="time"],
@@ -235,132 +234,31 @@
 			object-fit: contain;
 		}
 
-
 		@media print {
-			body {
-				font-size: 12pt;
-				margin-top: 50px;
-			}
-
-			#step-0,
-			#step-1,
-			#step-2,
-			#step-3,
-			#step-4 {
-				display: none !important;
-			}
-
-			#step-5 {
-				display: block !important;
-			}
-
-			input,
-			button,
-			.checkbox-group,
-			#employee-list,
-			.image-upload-section,
-			.overlay,
-			.options-popup {
-				display: none !important;
-			}
-
-			.form-container {
-				width: 100%;
-				margin: 0;
-				padding: 0;
-				position: relative;
-				box-sizing: border-box;
-			}
-
-			.logo-container {
-				position: absolute;
-				top: -70px;
-				right: 10px;
-			}
-
-			.logo-container img {
-				height: 80px;
-				max-width: 200px;
-			}
-
+			body { font-size: 12pt; margin-top: 50px; }
+			#step-0, #step-1, #step-2, #step-3, #step-4 { display: none !important; }
+			#step-5 { display: block !important; }
+			input, button, .checkbox-group, #employee-list, .image-upload-section, .overlay, .options-popup { display: none !important; }
+			.form-container { width: 100%; margin: 0; padding: 0; position: relative; box-sizing: border-box; }
+			.logo-container { position: absolute; top: -70px; right: 10px; }
+			.logo-container img { height: 80px; max-width: 200px; }
 			.summary-box {
-				border: 2px solid #000;
-				background-color: #ffffff;
-				padding: 10px 20px;
-				width: 100%;
-				max-width: 500px;
-				box-sizing: border-box;
-				text-align: left;
-				margin-top: 20px;
-				margin-left: auto;
-				margin-right: auto;
-				font-size: 10pt;
-				display: flex;
-				flex-direction: column;
-				align-items: flex-start;
+				border: 2px solid #000; background-color: #ffffff; padding: 10px 20px;
+				width: 100%; max-width: 500px; box-sizing: border-box; text-align: left;
+				margin-top: 20px; margin-left: auto; margin-right: auto; font-size: 10pt;
+				display: flex; flex-direction: column; align-items: flex-start;
 			}
-
-			.summary-box p {
-				margin: 3px 0;
-				width: 100%;
-				display: flex;
-				align-items: baseline;
-				flex-wrap: wrap;
-			}
-
-			.summary-box p span {
-				display: block;
-				flex-basis: 120px;
-				font-weight: normal;
-				text-align: left;
-				padding-right: 10px;
-			}
-
-			.summary-box p b {
-				font-weight: bold;
-				flex-grow: 1;
-				text-align: left;
-				word-break: break-word;
-				margin-left: auto;
-			}
-
+			.summary-box p { margin: 3px 0; width: 100%; display: flex; align-items: baseline; flex-wrap: wrap; }
+			.summary-box p span { display: block; flex-basis: 120px; font-weight: normal; text-align: left; padding-right: 10px; }
+			.summary-box p b { font-weight: bold; flex-grow: 1; text-align: left; word-break: break-word; margin-left: auto; }
 			.summary-image-container {
-				width: 150mm;
-				height: 150mm;
-				margin: 5mm auto 5mm auto;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				overflow: hidden;
-				page-break-inside: avoid;
-				page-break-before: auto;
-				page-break-after: avoid;
+				width: 150mm; height: 150mm; margin: 5mm auto; display: flex;
+				justify-content: center; align-items: center; overflow: hidden;
+				page-break-inside: avoid; page-break-before: auto; page-break-after: avoid;
 			}
-
-			.summary-image-container img {
-				max-width: 100%;
-				max-height: 100%;
-				object-fit: contain;
-			}
-
-			h1,
-			h2 {
-				text-align: center;
-				font-size: 18pt;
-				margin-bottom: 5px;
-			}
-
-			@page {
-				size: A4;
-				margin: 10mm;
-
-				@top-left { content: ""; }
-				@top-center { content: ""; }
-				@top-right { content: ""; }
-				@bottom-left { content: ""; }
-				@bottom-center { content: ""; }
-				@bottom-right { content: ""; }
-			}
+			.summary-image-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+			h1, h2 { text-align: center; font-size: 18pt; margin-bottom: 5px; }
+			@page { size: A4; margin: 10mm; }
 		}
 	</style>
 </head>
@@ -432,9 +330,9 @@
 				<h2>Informationen des Mitarbeiters</h2>
 				<div class="summary-box" id="summary"></div>
 				
-				<!-- Sichtbare Buttons in der App (werden beim Drucken automatisch ausgeblendet) -->
-				<button type="button" onclick="printSummary()" style="margin-top: 15px; background-color: #27ae60;">🖨️ Jetzt Drucken</button>
-				<button type="button" onclick="showOptionsPopup()" style="margin-top: 5px;">⚙️ Optionen (Teilen / Neu)</button>
+				<!-- Druck-Button mit PWA-Fallback -->
+				<button type="button" onclick="printSummary()" style="margin-top: 15px; background-color: #27ae60;">🖨️ Jetzt Drucken / Teilen</button>
+				<button type="button" onclick="showOptionsPopup()" style="margin-top: 5px;">⚙️ Mehr Optionen</button>
 				<button type="button" onclick="prevStep(4)" style="margin-top: 5px; background-color: #7f8c8d;">Zurück</button>
 			</div>
 		</form>
@@ -532,27 +430,22 @@
 
 		document.addEventListener('DOMContentLoaded', () => {
 			const savedUser = localStorage.getItem('currentUser');
-
 			if (savedUser) {
 				currentUser = JSON.parse(savedUser);
 				document.getElementById('user-lastname').value = currentUser.lastname;
 				document.getElementById('user-firstname').value = currentUser.firstname;
 				document.getElementById('user-pn').value = currentUser.pn;
 			}
-
 			nextStep(0);
 
 			if ('serviceWorker' in navigator) {
-				navigator.serviceWorker.register('service-worker.js')
-					.then(reg => console.log('Service Worker registriert', reg))
-					.catch(err => console.error('Service Worker Registrierung fehlgeschlagen', err));
+				navigator.serviceWorker.register('service-worker.js').catch(err => console.error(err));
 			}
 
 			document.getElementById('company-logo').addEventListener('click', () => {
-				if (document.getElementById('step-5').classList.contains('hidden')) {
-					return;
+				if (!document.getElementById('step-5').classList.contains('hidden')) {
+					showOptionsPopup();
 				}
-				showOptionsPopup();
 			});
 
 			document.getElementById('take-photo-btn').addEventListener('click', () => {
@@ -579,10 +472,8 @@
 			lastnameInput.addEventListener('input', function() {
 				const input = this.value.toLowerCase();
 				if (input.length > 0) {
-					const filteredEmployees = employeeData.filter(employee =>
-						employee.lastname.toLowerCase().startsWith(input)
-					);
-					displaySuggestions(filteredEmployees);
+					const filtered = employeeData.filter(emp => emp.lastname.toLowerCase().startsWith(input));
+					displaySuggestions(filtered);
 				} else {
 					employeeList.innerHTML = '';
 					employeeList.style.display = 'none';
@@ -590,20 +481,15 @@
 			});
 
 			lastnameInput.addEventListener('blur', () => {
-				setTimeout(() => {
-					employeeList.style.display = 'none';
-				}, 200);
+				setTimeout(() => { employeeList.style.display = 'none'; }, 200);
 			});
 
 			lastnameInput.addEventListener('focus', function() {
-				if (this.value.length > 0) {
-					employeeList.style.display = 'block';
-				}
+				if (this.value.length > 0) { employeeList.style.display = 'block'; }
 			});
 
 			function displaySuggestions(employees) {
 				employeeList.innerHTML = '';
-
 				if (employees.length > 0) {
 					employees.forEach(employee => {
 						const li = document.createElement('li');
@@ -621,10 +507,10 @@
 			}
 
 			function selectEmployee(event) {
-				const selectedEmployee = event.currentTarget.dataset;
-				document.getElementById('user-lastname').value = selectedEmployee.lastname;
-				document.getElementById('user-firstname').value = selectedEmployee.firstname;
-				document.getElementById('user-pn').value = selectedEmployee.pn;
+				const selected = event.currentTarget.dataset;
+				document.getElementById('user-lastname').value = selected.lastname;
+				document.getElementById('user-firstname').value = selected.firstname;
+				document.getElementById('user-pn').value = selected.pn;
 				employeeList.style.display = 'none';
 				document.getElementById('user-firstname').focus();
 			}
@@ -634,30 +520,23 @@
 			const lastname = document.getElementById('user-lastname').value;
 			const firstname = document.getElementById('user-firstname').value;
 			const pn = document.getElementById('user-pn').value;
-
 			if (!lastname || !firstname || !pn) {
 				alert('Bitte füllen Sie alle Felder aus.');
 				return;
 			}
-
 			currentUser = { lastname, firstname, pn };
 			localStorage.setItem('currentUser', JSON.stringify(currentUser));
 			nextStep(step);
 		}
 
 		function nextStep(step) {
-			const formSteps = document.querySelectorAll('.form-group');
-			formSteps.forEach(s => s.classList.add('hidden'));
+			document.querySelectorAll('.form-group').forEach(s => s.classList.add('hidden'));
 			document.getElementById('step-' + step).classList.remove('hidden');
-
-			if (step === 5) {
-				showSummary();
-			}
+			if (step === 5) { showSummary(); }
 		}
 
 		function prevStep(step) {
-			const formSteps = document.querySelectorAll('.form-group');
-			formSteps.forEach(s => s.classList.add('hidden'));
+			document.querySelectorAll('.form-group').forEach(s => s.classList.add('hidden'));
 			document.getElementById('step-' + step).classList.remove('hidden');
 			if (step === 1) {
 				document.getElementById('sick-note-image').value = '';
@@ -682,7 +561,6 @@
 					imgElement.src = e.target.result;
 					imgElement.style.display = 'block';
 					sickNoteImageData = e.target.result;
-
 					document.getElementById('goToSummaryFromImage').classList.remove('hidden');
 					document.getElementById('report-date').disabled = true;
 					document.getElementById('report-time').disabled = true;
@@ -700,14 +578,12 @@
 		function validateStep1AndNext(step) {
 			const reportDate = document.getElementById("report-date").value;
 			const reportTime = document.getElementById("report-time").value;
-
 			if (!sickNoteImageData && (!reportDate || !reportTime)) {
-				alert('Bitte füllen Sie die Felder für Datum und Uhrzeit aus ODER laden Sie ein Bild der Krankmeldung hoch.');
+				alert('Bitte füllen Sie die Felder für Datum und Uhrzeit aus ODER laden Sie ein Bild hoch.');
 				return;
 			}
-
 			if (sickNoteImageData && (reportDate || reportTime)) {
-				alert('Bitte wählen Sie entweder die Formularfelder aus ODER laden Sie ein Bild hoch, nicht beides.');
+				alert('Entweder Formularfelder ODER Bild hochladen, nicht beides.');
 				return;
 			}
 			nextStep(step);
@@ -719,7 +595,7 @@
 				summaryBox.innerHTML = `
 					<p><span>Personalnummer:</span> <b>${currentUser.pn}</b></p>
 					<div class="summary-image-container">
-						<img src="${sickNoteImageData}" alt="Hochgeladenes Bild der Krankmeldung">
+						<img src="${sickNoteImageData}" alt="Hochgeladenes Bild">
 					</div>
 				`;
 			} else {
@@ -727,8 +603,8 @@
 				const reportTime = document.getElementById("report-time").value;
 				const durationStart = document.getElementById("duration-start").value.split("-").reverse().join(".");
 				const durationEnd = document.getElementById("duration-end").value.split("-").reverse().join(".");
-				const firstCertification = document.getElementById("first-certification").checked ? "✓" : "-";
-				const followUpCertification = document.getElementById("follow-up-certification").checked ? "✓" : "-";
+				const firstCert = document.getElementById("first-certification").checked ? "✓" : "-";
+				const followCert = document.getElementById("follow-up-certification").checked ? "✓" : "-";
 				const doctorVisit = document.getElementById("doctor-visit").value.split("-").reverse().join(".");
 
 				summaryBox.innerHTML = `
@@ -738,19 +614,29 @@
 					<p><span>Krankmeldung-SMP:</span> <b>${reportDate} / ${reportTime}</b></p>
 					<p><span>Dauer von:</span> <b>${durationStart}</b></p>
 					<p><span>bis:</span> <b>${durationEnd}</b></p>
-					<p><span>Erstbescheinigung:</span> <b>${firstCertification}</b></p>
-					<p><span>Folgebescheinigung:</span> <b>${followUpCertification}</b></p>
+					<p><span>Erstbescheinigung:</span> <b>${firstCert}</b></p>
+					<p><span>Folgebescheinigung:</span> <b>${followCert}</b></p>
 					<p><span>Arztbesuch am:</span> <b>${doctorVisit}</b></p>
 				`;
 			}
 		}
 
+		// PWA-sicherer Ansatz: Löst standardmäßig window.print() aus, 
+		// erzwingt bei Blockierung jedoch ein intelligentes Teilen/Ausdrucken.
 		function printSummary() {
 			try {
 				window.print();
-			} catch (error) {
-				console.error('Drucken fehlgeschlagen:', error);
-				alert('Ihr PWA-Container unterstützt den Direkt-Druck gerade nicht. Nutzen Sie stattdessen die "Teilen"-Funktion oder öffnen Sie die Seite im normalen Browser.');
+			} catch (e) {
+				fallbackPrint();
+			}
+		}
+
+		function fallbackPrint() {
+			if (navigator.share) {
+				const text = document.getElementById('summary').innerText;
+				navigator.share({ title: 'Krankmeldung', text: text }).catch(() => {});
+			} else {
+				window.print();
 			}
 		}
 
@@ -763,33 +649,22 @@
 
 			const shareButton = document.createElement('button');
 			shareButton.textContent = 'Teilen';
-			shareButton.onclick = () => {
-				shareSummary();
-				document.body.removeChild(overlay);
-			};
+			shareButton.onclick = () => { shareSummary(); document.body.removeChild(overlay); };
 			popup.appendChild(shareButton);
 
 			const printButton = document.createElement('button');
 			printButton.textContent = 'Drucken';
-			printButton.onclick = () => {
-				printSummary();
-				document.body.removeChild(overlay);
-			};
+			printButton.onclick = () => { printSummary(); document.body.removeChild(overlay); };
 			popup.appendChild(printButton);
 
 			const restartButton = document.createElement('button');
 			restartButton.textContent = 'Von vorne beginnen';
-			restartButton.onclick = () => {
-				restartForm();
-				document.body.removeChild(overlay);
-			};
+			restartButton.onclick = () => { restartForm(); document.body.removeChild(overlay); };
 			popup.appendChild(restartButton);
 
 			const closeButton = document.createElement('button');
 			closeButton.textContent = 'Abbrechen';
-			closeButton.onclick = () => {
-				document.body.removeChild(overlay);
-			};
+			closeButton.onclick = () => { document.body.removeChild(overlay); };
 			popup.appendChild(closeButton);
 
 			overlay.appendChild(popup);
@@ -799,33 +674,22 @@
 		function shareSummary() {
 			const summaryText = document.getElementById('summary').innerText;
 			if (navigator.share) {
-				navigator.share({
-					title: 'Krankmeldung Zusammenfassung',
-					text: summaryText,
-				}).then(() => {
-					console.log('Zusammenfassung geteilt!');
-				}).catch((error) => {
-					console.error('Fehler beim Teilen:', error);
-					alert('Teilen fehlgeschlagen oder abgebrochen.');
-				});
+				navigator.share({ title: 'Krankmeldung Zusammenfassung', text: summaryText }).catch(() => {});
 			} else {
-				alert('Ihr Browser unterstützt die Teilen-Funktion nicht direkt. Bitte kopieren Sie den Text manuell:\n\n' + summaryText);
+				alert('Teilen wird auf diesem Gerät nicht unterstützt.');
 			}
 		}
 
 		function restartForm() {
 			document.getElementById('sick-leave-form').reset();
-
 			document.getElementById('user-lastname').value = currentUser.lastname;
 			document.getElementById('user-firstname').value = currentUser.firstname;
 			document.getElementById('user-pn').value = currentUser.pn;
-
 			sickNoteImageData = null;
 			document.getElementById('uploaded-image').style.display = 'none';
 			document.getElementById('goToSummaryFromImage').classList.add('hidden');
 			document.getElementById('report-date').disabled = false;
 			document.getElementById('report-time').disabled = false;
-
 			nextStep(0);
 		}
 	</script>
