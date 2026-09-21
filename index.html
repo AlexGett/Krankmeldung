@@ -6,7 +6,7 @@
 	<title>Krankmeldung</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="manifest" href="manifest.json">
-	<!-- NEU: Bibliotheken für den perfekten PDF-Export (html2canvas & jsPDF) -->
+	<!-- Bibliotheken für den PDF-Export -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -243,7 +243,8 @@
 <body>
 	<div class="form-container" id="pdf-export-area">
 		<div class="logo-container">
-			<img id="company-logo" src="https://images.seeklogo.com/logo-png/54/2/motherson-logo-png_seeklogo-544537.png" alt="Firmenlogo" />
+			<!-- crossOrigin="anonymous" hilft, dass externe Bilder gerendert werden -->
+			<img id="company-logo" crossorigin="anonymous" src="https://images.seeklogo.com/logo-png/54/2/motherson-logo-png_seeklogo-544537.png" alt="Firmenlogo" />
 		</div>
 		<h1>Krankmeldung</h1>
 		<form id="sick-leave-form">
@@ -605,21 +606,39 @@
 			}
 		}
 
-		// NEU: Exakte 1:1 PDF-Generierung mittels html2canvas & jsPDF
+		// Optimierte PDF-Generierung: Garantiert vollständige Sichtbarkeit auf einer DIN-A4-Seite inkl. Logo
 		function generatePDF() {
 			const element = document.getElementById('pdf-export-area');
 			
-			// Optionen für html2canvas für perfekte Qualität
-			html2canvas(element, { scale: 2, useCORS: true }).then(canvas => {
+			html2canvas(element, { 
+				scale: 2, 
+				useCORS: true, 
+				allowTaint: true 
+			}).then(canvas => {
 				const imgData = canvas.toDataURL('image/png');
 				
 				const { jsPDF } = window.jspdf;
 				const pdf = new jsPDF('p', 'mm', 'a4');
 				
-				const pdfWidth = pdf.internal.pageSize.getWidth();
-				const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+				const pageWidth = pdf.internal.pageSize.getWidth();
+				const pageHeight = pdf.internal.pageSize.getHeight();
 				
-				pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
+				const imgWidth = pageWidth - 20; // 10mm Rand links und rechts
+				const imgHeight = (canvas.height * imgWidth) / canvas.width;
+				
+				// Wenn das Bild höher ist als eine Seite, proportional einpassen
+				let finalHeight = imgHeight;
+				let finalWidth = imgWidth;
+				
+				if (finalHeight > pageHeight - 20) {
+					finalHeight = pageHeight - 20;
+					finalWidth = (canvas.width * finalHeight) / canvas.height;
+				}
+				
+				// Zentriert auf das DIN-A4-Blatt zeichnen
+				const xOffset = (pageWidth - finalWidth) / 2;
+				pdf.addImage(imgData, 'PNG', xOffset, 10, finalWidth, finalHeight);
+				
 				pdf.save(`Krankmeldung_${currentUser.lastname}_${currentUser.firstname}.pdf`);
 			});
 		}
@@ -639,7 +658,6 @@
 			};
 			popup.appendChild(shareButton);
 
-			// NEU: Button für den echten 1:1 PDF-Export
 			const pdfButton = document.createElement('button');
 			pdfButton.textContent = 'Als PDF speichern';
 			pdfButton.onclick = () => {
