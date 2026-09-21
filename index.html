@@ -926,7 +926,13 @@
 			const printButton = document.createElement('button'); // New Print Button
 			printButton.textContent = 'Drucken';
 			printButton.onclick = () => {
-				printSummary(); // Korrigiert: Führt die Druckvorschau ohne sofortiges Entfernen des Overlays aus
+				printSummary();
+				// Schließt das Menü mit einer winzigen Verzögerung, damit der Druckdialog fehlerfrei startet
+				setTimeout(() => {
+					if (document.body.contains(overlay)) {
+						document.body.removeChild(overlay);
+					}
+				}, 100);
 			};
 			popup.appendChild(printButton);
 
