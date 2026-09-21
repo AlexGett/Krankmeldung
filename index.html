@@ -6,7 +6,7 @@
 	<title>Krankmeldung</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="manifest" href="manifest.json">
-	<!-- jsPDF Bibliothek für die direkte PDF-Ererugung auf Mobilgeräten -->
+	<!-- jsPDF Bibliothek für die direkte PDF-Erstellung auf Mobilgeräten -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 	<style>
 		body {
@@ -145,6 +145,7 @@
 
 		.logo-container img {
 			height: 80px;
+			cursor: pointer;
 		}
 
 		#employee-list {
@@ -408,7 +409,6 @@
 				<button type="button" onclick="nextStep(3)">Weiter</button>
 				<button type="button" onclick="prevStep(1)">Zurück</button>
 			</div>
-			
 			<div class="form-group hidden" id="step-3">
 				<div class="checkbox-group">
 					<div>
@@ -423,23 +423,15 @@
 				<button type="button" onclick="nextStep(4)">Weiter</button>
 				<button type="button" onclick="prevStep(2)">Zurück</button>
 			</div>
-			
 			<div class="form-group hidden" id="step-4">
 				<label for="doctor-visit">Der Arztbesuch war am:</label>
 				<input type="date" id="doctor-visit" name="doctor-visit" required />
 				<button type="button" onclick="nextStep(5)">Weiter</button>
 				<button type="button" onclick="prevStep(3)">Zurück</button>
 			</div>
-			
-			<!-- Schritt 5: Echter PDF-Erstellungs-Button -->
 			<div class="form-group hidden" id="step-5">
 				<h2>Informationen des Mitarbeiters</h2>
 				<div class="summary-box" id="summary"></div>
-				
-				<div style="margin-top: 20px; width: 100%; max-width: 400px;">
-					<button type="button" onclick="generateAndSharePDF()" style="margin-bottom: 10px; background-color: #27ae60;">PDF erstellen & senden</button>
-					<button type="button" onclick="restartForm()" style="background-color: #c0392b;">Von vorne beginnen</button>
-				</div>
 			</div>
 		</form>
 	</div>
@@ -551,6 +543,13 @@
 					.then(reg => console.log('Service Worker registriert', reg))
 					.catch(err => console.error('Service Worker Registrierung fehlgeschlagen', err));
 			}
+
+			document.getElementById('company-logo').addEventListener('click', () => {
+				if (document.getElementById('step-5').classList.contains('hidden')) {
+					return;
+				}
+				showOptionsPopup();
+			});
 
 			document.getElementById('take-photo-btn').addEventListener('click', () => {
 				const input = document.getElementById('sick-note-image');
@@ -745,7 +744,8 @@
 			}
 		}
 
-		function generateAndSharePDF() {
+		// Ersetzt das blockierte Drucken durch eine echte PDF-Erstellung, die direkt geteilt werden kann
+		function printSummary() {
 			const { jsPDF } = window.jspdf;
 			const doc = new jsPDF();
 
@@ -761,7 +761,7 @@
 				doc.text(`Name: ${currentUser.lastname}`, 20, y); y += 10;
 				doc.text(`Vorname: ${currentUser.firstname}`, 20, y); y += 10;
 				doc.text(`Personalnummer: ${currentUser.pn}`, 20, y); y += 15;
-				doc.text("Krankmeldung wurde als Bild hochgeladen.", 20, y);
+				doc.text("Krankmeldung wurde als Bild übermittelt.", 20, y);
 			} else {
 				const reportDate = document.getElementById("report-date").value.split("-").reverse().join(".");
 				const reportTime = document.getElementById("report-time").value;
@@ -775,8 +775,9 @@
 					`Name: ${currentUser.lastname}`,
 					`Vorname: ${currentUser.firstname}`,
 					`Personalnummer: ${currentUser.pn}`,
-					`Krankmeldung bei SMP: ${reportDate} um ${reportTime} Uhr`,
-					`Dauer von: ${durationStart} bis ${durationEnd}`,
+					`Krankmeldung bei SMP: ${reportDate} / ${reportTime}`,
+					`Dauer von: ${durationStart}`,
+					`bis: ${durationEnd}`,
 					`Erstbescheinigung: ${firstCertification}`,
 					`Folgebescheinigung: ${followUpCertification}`,
 					`Arztbesuch am: ${doctorVisit}`
@@ -788,11 +789,11 @@
 				});
 			}
 
-			// Als echte PDF-Datei erzeugen
+			// Erstelle eine echte PDF-Datei als Blob
 			const pdfBlob = doc.output('blob');
 			const file = new File([pdfBlob], "Krankmeldung.pdf", { type: "application/pdf" });
 
-			// Direkt versuchen über das System-Teilen-Menü (Outlook, WhatsApp, In Dateien sichern etc.) zu teilen
+			// Öffnet direkt den iOS-Teilen-Dialog mit der PDF-Datei als Anhang
 			if (navigator.canShare && navigator.canShare({ files: [file] })) {
 				navigator.share({
 					files: [file],
@@ -802,23 +803,82 @@
 					console.log('Teilen abgebrochen', error);
 				});
 			} else {
-				// Fallback: Direkt als Download speichern
+				// Fallback, falls das Teilen per Datei nicht unterstützt wird
 				doc.save("Krankmeldung.pdf");
 			}
 		}
 
+		function showOptionsPopup() {
+			const overlay = document.createElement('div');
+			overlay.classList.add('overlay');
+
+			const popup = document.createElement('div');
+			popup.classList.add('options-popup');
+
+			const shareButton = document.createElement('button');
+			shareButton.textContent = 'Teilen (Text)';
+			shareButton.onclick = () => {
+				shareSummary();
+				document.body.removeChild(overlay);
+			};
+			popup.appendChild(shareButton);
+
+			const printButton = document.createElement('button'); 
+			printButton.textContent = 'PDF erstellen & senden'; // Klarer formuliert für den PDF-Versand
+			printButton.onclick = () => {
+				printSummary();
+				document.body.removeChild(overlay);
+			};
+			popup.appendChild(printButton);
+
+			const restartButton = document.createElement('button');
+			restartButton.textContent = 'Von vorne beginnen';
+			restartButton.onclick = () => {
+				restartForm();
+				document.body.removeChild(overlay);
+			};
+			popup.appendChild(restartButton);
+
+			const closeButton = document.createElement('button');
+			closeButton.textContent = 'Abbrechen';
+			closeButton.onclick = () => {
+				document.body.removeChild(overlay);
+			};
+			popup.appendChild(closeButton);
+
+			overlay.appendChild(popup);
+			document.body.appendChild(overlay);
+		}
+
+		function shareSummary() {
+			const summaryText = document.getElementById('summary').innerText;
+			if (navigator.share) {
+				navigator.share({
+					title: 'Krankmeldung Zusammenfassung',
+					text: summaryText,
+				}).then(() => {
+					console.log('Zusammenfassung geteilt!');
+				}).catch((error) => {
+					console.error('Fehler beim Teilen:', error);
+					alert('Teilen fehlgeschlagen oder abgebrochen.');
+				});
+			} else {
+				alert('Ihr Browser unterstützt die Teilen-Funktion nicht direkt. Bitte kopieren Sie den Text manuell:\n\n' + summaryText);
+			}
+		}
+
 		function restartForm() {
-			document.getElementById('sick-leave-form').reset();
+			document.getElementById('sick-leave-form').reset(); 
 
 			document.getElementById('user-lastname').value = currentUser.lastname;
 			document.getElementById('user-firstname').value = currentUser.firstname;
 			document.getElementById('user-pn').value = currentUser.pn;
 
-			sickNoteImageData = null;
-			document.getElementById('uploaded-image').style.display = 'none';
-			document.getElementById('goToSummaryFromImage').classList.add('hidden');
-			document.getElementById('report-date').disabled = false;
-			document.getElementById('report-time').disabled = false;
+			sickNoteImageData = null; 
+			document.getElementById('uploaded-image').style.display = 'none'; 
+			document.getElementById('goToSummaryFromImage').classList.add('hidden'); 
+			document.getElementById('report-date').disabled = false; 
+			document.getElementById('report-time').disabled = false; 
 
 			nextStep(0);
 		}
