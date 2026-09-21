@@ -745,10 +745,23 @@
 		}
 
 		function printSummary() {
-			// Erhöhter Timeout für PWA-Kontext (z.B. Standalone iOS/Android Safari)
-			setTimeout(() => {
-				window.print();
-			}, 400);
+			const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+			const summaryText = document.getElementById('summary').innerText;
+
+			// Im Homescreen-Modus direkt das Teilen-Menü verwenden, da iOS dort window.print() blockiert
+			if (isStandalone && navigator.share) {
+				navigator.share({
+					title: 'Krankmeldung',
+					text: summaryText,
+				}).catch((error) => {
+					console.log('Teilen abgebrochen', error);
+				});
+			} else {
+				// Im normalen Browser normal drucken
+				setTimeout(() => {
+					window.print();
+				}, 400);
+			}
 		}
 
 		function shareSummary() {
