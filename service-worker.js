@@ -1,4 +1,4 @@
-const CACHE_NAME = 'krankmeldung-cache-v1.17';
+const CACHE_NAME = 'krankmeldung-cache-v1.18';
 const urlsToCache = [
   './',
   'index.html',
