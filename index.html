@@ -745,10 +745,10 @@
 		}
 
 		function printSummary() {
-			// iOS Safari spezifischer Workaround für Druckvorgänge
+			// Erhöhter Timeout für PWA-Kontext (z.B. Standalone iOS/Android Safari)
 			setTimeout(() => {
 				window.print();
-			}, 100);
+			}, 400);
 		}
 
 		function shareSummary() {
