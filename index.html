@@ -745,7 +745,10 @@
 		}
 
 		function printSummary() {
-			window.print();
+			// iOS Safari spezifischer Workaround für Druckvorgänge
+			setTimeout(() => {
+				window.print();
+			}, 100);
 		}
 
 		function shareSummary() {
