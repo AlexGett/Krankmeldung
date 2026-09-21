@@ -429,7 +429,7 @@
 				<button type="button" onclick="prevStep(3)">Zurück</button>
 			</div>
 			
-			<!-- Schritt 5: Direkter Druck-Button -->
+			<!-- Schritt 5: Button mit automatischem Fallback -->
 			<div class="form-group hidden" id="step-5">
 				<h2>Informationen des Mitarbeiters</h2>
 				<div class="summary-box" id="summary"></div>
@@ -744,9 +744,22 @@
 		}
 
 		function printSummary() {
+			// Versuche das native Drucken aufzurufen
+			window.print();
+
+			// Fallback für mobile Geräte (wie iOS/Android Web-Apps), 
+			// falls window.print() blockiert wird und nichts passiert:
 			setTimeout(() => {
-				window.print();
-			}, 300);
+				const summaryText = document.getElementById('summary').innerText;
+				if (navigator.share) {
+					navigator.share({
+						title: 'Krankmeldung',
+						text: summaryText,
+					}).catch(() => {
+						// Falls der Nutzer abbricht, ignorieren
+					});
+				}
+			}, 500);
 		}
 
 		function restartForm() {
