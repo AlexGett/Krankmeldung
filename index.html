@@ -268,6 +268,26 @@
 			margin-bottom: 10px;
 		}
 
+		/* Echte <a>-Links für Drucken/Teilen, optisch wie die anderen Buttons */
+		.options-popup a.popup-link-button {
+			display: block;
+			width: 100%;
+			height: 60px;
+			line-height: 60px;
+			margin-bottom: 10px;
+			background-color: #2c3e50;
+			color: white;
+			text-align: center;
+			text-decoration: none;
+			border-radius: 4px;
+			font-size: 24px;
+			box-sizing: border-box;
+		}
+
+		.options-popup a.popup-link-button:hover {
+			background-color: #34495e;
+		}
+
 		/* NEU: Styling für den Bild-Container in der Zusammenfassung */
 		.summary-image-container {
 			width: 100%;
@@ -902,34 +922,21 @@
 			}
 		}
 
-		// Function to handle printing & sharing
+		// Legt die Zusammenfassung für print.html bereit.
 		// HINWEIS: Wird die Seite als installierte App vom Homescreen geöffnet (Standalone-Modus),
-		// funktionieren window.print() UND navigator.share() auf iOS nicht zuverlässig, weil
-		// window.open() innerhalb des Standalone-Modus kein echtes Safari-Fenster öffnet.
-		// Lösung: Die Zusammenfassung wird kurz in sessionStorage abgelegt und dann eine ECHTE
-		// https-Seite (print.html, im selben Verzeichnis wie diese Datei) geöffnet. Nur bei einer
-		// echten http(s)-Adresse übergibt iOS die Anzeige an die echte Safari-App mit voller
-		// Symbolleiste – dort funktionieren Drucken und Teilen wieder nativ.
-		function openPrintPage() {
+		// funktionieren window.print() UND navigator.share() auf iOS nicht zuverlässig. Ein per
+		// JavaScript ausgelöster window.open() wird von iOS dabei NICHT an die echte Safari-App
+		// übergeben. Ein echter Link-Tap (<a target="_blank">) dagegen schon. Deshalb sind
+		// "Drucken" und "Teilen" jetzt echte Links auf print.html (siehe showOptionsPopup); diese
+		// Funktion legt vorher nur die Daten in sessionStorage ab, die Navigation übernimmt der
+		// Browser selbst über den echten Link-Klick.
+		function prepareSummaryForPrintPage() {
 			const summaryHTML = document.getElementById('summary').innerHTML;
-
 			try {
 				sessionStorage.setItem('krankmeldungSummaryHTML', summaryHTML);
 			} catch (e) {
 				alert('Die Zusammenfassung konnte nicht übergeben werden (evtl. ist das Foto zu groß). Bitte versuchen Sie es mit einem kleineren Bild oder ohne Foto.');
-				return;
 			}
-
-			const printUrl = new URL('print.html', window.location.href).href;
-			const printWindow = window.open(printUrl, '_blank');
-
-			if (!printWindow) {
-				alert('Bitte erlauben Sie Pop-ups für diese Seite, um Drucken/Teilen zu nutzen.');
-			}
-		}
-
-		function printSummary() {
-			openPrintPage();
 		}
 
 		// Function to create and show the options popup
@@ -940,21 +947,27 @@
 			const popup = document.createElement('div');
 			popup.classList.add('options-popup');
 
-			const shareButton = document.createElement('button');
-			shareButton.textContent = 'Teilen';
-			shareButton.onclick = () => {
-				shareSummary();
-				document.body.removeChild(overlay);
-			};
-			popup.appendChild(shareButton);
+			const printPageUrl = new URL('print.html', window.location.href).href;
 
-			const printButton = document.createElement('button'); // New Print Button
-			printButton.textContent = 'Drucken';
-			printButton.onclick = () => {
-				printSummary();
-				document.body.removeChild(overlay);
-			};
-			popup.appendChild(printButton);
+			// Teilen und Drucken sind echte Links (siehe prepareSummaryForPrintPage): nur ein
+			// echter Link-Tap wird von iOS im Standalone-Modus zuverlässig an Safari übergeben.
+			const shareLink = document.createElement('a');
+			shareLink.textContent = 'Teilen';
+			shareLink.href = printPageUrl;
+			shareLink.target = '_blank';
+			shareLink.rel = 'noopener';
+			shareLink.classList.add('popup-link-button');
+			shareLink.addEventListener('click', prepareSummaryForPrintPage);
+			popup.appendChild(shareLink);
+
+			const printLink = document.createElement('a');
+			printLink.textContent = 'Drucken';
+			printLink.href = printPageUrl;
+			printLink.target = '_blank';
+			printLink.rel = 'noopener';
+			printLink.classList.add('popup-link-button');
+			printLink.addEventListener('click', prepareSummaryForPrintPage);
+			popup.appendChild(printLink);
 
 			const restartButton = document.createElement('button');
 			restartButton.textContent = 'Von vorne beginnen';
@@ -973,13 +986,18 @@
 
 			overlay.appendChild(popup);
 			document.body.appendChild(overlay);
-		}
 
-		// Function to handle sharing
-		// Öffnet ebenfalls print.html in echtem Safari (siehe openPrintPage) – dort steht ein
-		// eigener "Teilen"-Button (navigator.share) zur Verfügung, der dort zuverlässig funktioniert.
-		function shareSummary() {
-			openPrintPage();
+			// Overlay bei Teilen/Drucken erst NACH dem Klick-Ereignis entfernen (setTimeout 0),
+			// damit der Link-Tap nicht durch das Entfernen des Elements aus dem DOM abgebrochen wird.
+			[shareLink, printLink].forEach(link => {
+				link.addEventListener('click', () => {
+					setTimeout(() => {
+						if (overlay.parentNode) {
+							document.body.removeChild(overlay);
+						}
+					}, 0);
+				});
+			});
 		}
 
 		// Function to restart the form
