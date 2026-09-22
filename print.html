@@ -122,17 +122,38 @@
 	<p id="empty-message" style="display: none;">Keine Daten gefunden. Bitte öffnen Sie die Krankmeldung erneut über die App und tippen Sie dort auf "Drucken" oder "Teilen".</p>
 
 	<script>
-		const savedHTML = localStorage.getItem('krankmeldungSummaryHTML');
+		const params = new URLSearchParams(window.location.search);
 		const summaryBox = document.getElementById('summary');
 		const actions = document.getElementById('actions');
+		const mode = params.get('mode');
 
-		if (!savedHTML) {
+		function formatDate(isoDate) {
+			return isoDate ? isoDate.split('-').reverse().join('.') : '';
+		}
+
+		if (!mode) {
 			document.getElementById('empty-message').style.display = 'block';
 			summaryBox.style.display = 'none';
+		} else if (mode === 'photo') {
+			summaryBox.innerHTML = `
+				<p><span>Personalnummer:</span> <b>${params.get('pn') || ''}</b></p>
+				<p style="margin-top: 15px;">Für diese Krankmeldung wurde ein Foto hochgeladen. Fotos werden aus technischen Gründen hier nicht angezeigt – bitte drucken oder teilen Sie das Foto direkt aus Ihrer Fotos-App.</p>
+			`;
 		} else {
-			localStorage.removeItem('krankmeldungSummaryHTML');
-			summaryBox.innerHTML = savedHTML;
+			summaryBox.innerHTML = `
+				<p><span>Name:</span> <b>${params.get('lastname') || ''}</b></p>
+				<p><span>Vorname:</span> <b>${params.get('firstname') || ''}</b></p>
+				<p><span>Personalnummer:</span> <b>${params.get('pn') || ''}</b></p>
+				<p><span>Krankmeldung-SMP:</span> <b>${formatDate(params.get('reportDate'))} / ${params.get('reportTime') || ''}</b></p>
+				<p><span>Dauer von:</span> <b>${formatDate(params.get('durationStart'))}</b></p>
+				<p><span>bis:</span> <b>${formatDate(params.get('durationEnd'))}</b></p>
+				<p><span>Erstbescheinigung:</span> <b>${params.get('first') === '1' ? '✓' : '-'}</b></p>
+				<p><span>Folgebescheinigung:</span> <b>${params.get('follow') === '1' ? '✓' : '-'}</b></p>
+				<p><span>Arztbesuch am:</span> <b>${formatDate(params.get('doctorVisit'))}</b></p>
+			`;
+		}
 
+		if (mode) {
 			const printBtn = document.createElement('button');
 			printBtn.textContent = 'Drucken';
 			printBtn.onclick = () => window.print();
