@@ -922,23 +922,35 @@
 			}
 		}
 
-		// Legt die Zusammenfassung für print.html bereit.
-		// HINWEIS: Wird die Seite als installierte App vom Homescreen geöffnet (Standalone-Modus),
-		// funktionieren window.print() UND navigator.share() auf iOS nicht zuverlässig. Ein per
-		// JavaScript ausgelöster window.open() wird von iOS dabei NICHT an die echte Safari-App
-		// übergeben. Ein echter Link-Tap (<a target="_blank">) dagegen schon. Deshalb sind
-		// "Drucken" und "Teilen" jetzt echte Links auf print.html (siehe showOptionsPopup); diese
-		// Funktion legt vorher nur die Daten ab, die Navigation übernimmt der Browser selbst über
-		// den echten Link-Klick. localStorage statt sessionStorage, weil x-safari-https:// eine
-		// App-externe Navigation an Safari ist (kein window.open()) – sessionStorage würde dabei
-		// NICHT mit übergeben, localStorage ist dagegen an die Origin gebunden und bleibt erhalten.
-		function prepareSummaryForPrintPage() {
-			const summaryHTML = document.getElementById('summary').innerHTML;
-			try {
-				localStorage.setItem('krankmeldungSummaryHTML', summaryHTML);
-			} catch (e) {
-				alert('Die Zusammenfassung konnte nicht übergeben werden (evtl. ist das Foto zu groß). Bitte versuchen Sie es mit einem kleineren Bild oder ohne Foto.');
+		// Baut die Ziel-URL für print.html inkl. der Formulardaten als Query-Parameter.
+		// HINWEIS: localStorage/sessionStorage werden zwischen der installierten Homescreen-App
+		// und echtem Safari NICHT geteilt – iOS behandelt das als getrennte Speicherbereiche,
+		// selbst bei gleicher Origin. Deshalb werden die Daten direkt in der URL übergeben.
+		// Ein hochgeladenes Foto wird NICHT übergeben (zu groß für eine URL); in dem Fall bekommt
+		// print.html nur die Personalnummer und einen entsprechenden Hinweis.
+		function buildPrintUrl() {
+			const params = new URLSearchParams();
+			params.set('pn', currentUser.pn || '');
+
+			if (sickNoteImageData) {
+				params.set('mode', 'photo');
+			} else {
+				params.set('mode', 'form');
+				params.set('lastname', currentUser.lastname || '');
+				params.set('firstname', currentUser.firstname || '');
+				params.set('reportDate', document.getElementById('report-date').value);
+				params.set('reportTime', document.getElementById('report-time').value);
+				params.set('durationStart', document.getElementById('duration-start').value);
+				params.set('durationEnd', document.getElementById('duration-end').value);
+				params.set('first', document.getElementById('first-certification').checked ? '1' : '0');
+				params.set('follow', document.getElementById('follow-up-certification').checked ? '1' : '0');
+				params.set('doctorVisit', document.getElementById('doctor-visit').value);
 			}
+
+			const base = new URL('print.html', window.location.href).href + '?' + params.toString();
+			// x-safari-https:// zwingt iOS dazu, den Link IMMER in echtem Safari zu öffnen –
+			// auch wenn die Ziel-URL zur selben Origin gehört wie die installierte Homescreen-App.
+			return base.replace(/^https?:\/\//, 'x-safari-https://');
 		}
 
 		// Function to create and show the options popup
@@ -949,27 +961,20 @@
 			const popup = document.createElement('div');
 			popup.classList.add('options-popup');
 
-			const printPageUrl = new URL('print.html', window.location.href).href;
-			// x-safari-https:// zwingt iOS dazu, den Link IMMER in echtem Safari zu öffnen –
-			// auch wenn die Ziel-URL zur selben Origin gehört wie die installierte Homescreen-App
-			// (was bei normalem https:// bzw. target="_blank" dazu führt, dass iOS im
-			// eingeschränkten Standalone-Kontext bleibt, ohne Browser-Symbolleiste).
-			const forcedSafariUrl = printPageUrl.replace(/^https?:\/\//, 'x-safari-https://');
+			const forcedSafariUrl = buildPrintUrl();
 
-			// Teilen und Drucken sind echte Links (siehe prepareSummaryForPrintPage): nur ein
-			// echter Link-Tap wird von iOS im Standalone-Modus zuverlässig an Safari übergeben.
+			// Teilen und Drucken sind echte Links: nur ein echter Link-Tap wird von iOS im
+			// Standalone-Modus zuverlässig an Safari übergeben.
 			const shareLink = document.createElement('a');
 			shareLink.textContent = 'Teilen';
 			shareLink.href = forcedSafariUrl;
 			shareLink.classList.add('popup-link-button');
-			shareLink.addEventListener('click', prepareSummaryForPrintPage);
 			popup.appendChild(shareLink);
 
 			const printLink = document.createElement('a');
 			printLink.textContent = 'Drucken';
 			printLink.href = forcedSafariUrl;
 			printLink.classList.add('popup-link-button');
-			printLink.addEventListener('click', prepareSummaryForPrintPage);
 			popup.appendChild(printLink);
 
 			const restartButton = document.createElement('button');
