@@ -902,89 +902,34 @@
 			}
 		}
 
-		// Function to handle printing
+		// Function to handle printing & sharing
 		// HINWEIS: Wird die Seite als installierte App vom Homescreen geöffnet (Standalone-Modus),
-		// funktioniert window.print() auf vielen Geräten (insbesondere iOS) nicht mehr zuverlässig.
-		// Deshalb wird die Zusammenfassung in einem neuen Browser-Tab/-Fenster geöffnet, das den
-		// eingeschränkten Standalone-Modus verlässt, und dort erst gedruckt.
-		function printSummary() {
+		// funktionieren window.print() UND navigator.share() auf iOS nicht zuverlässig, weil
+		// window.open() innerhalb des Standalone-Modus kein echtes Safari-Fenster öffnet.
+		// Lösung: Die Zusammenfassung wird kurz in sessionStorage abgelegt und dann eine ECHTE
+		// https-Seite (print.html, im selben Verzeichnis wie diese Datei) geöffnet. Nur bei einer
+		// echten http(s)-Adresse übergibt iOS die Anzeige an die echte Safari-App mit voller
+		// Symbolleiste – dort funktionieren Drucken und Teilen wieder nativ.
+		function openPrintPage() {
 			const summaryHTML = document.getElementById('summary').innerHTML;
-			const printWindow = window.open('', '_blank');
 
-			if (!printWindow) {
-				alert('Die Druckvorschau konnte nicht geöffnet werden. Bitte erlauben Sie Pop-ups für diese Seite, oder öffnen Sie die Seite direkt im Browser statt über das Homescreen-Symbol.');
+			try {
+				sessionStorage.setItem('krankmeldungSummaryHTML', summaryHTML);
+			} catch (e) {
+				alert('Die Zusammenfassung konnte nicht übergeben werden (evtl. ist das Foto zu groß). Bitte versuchen Sie es mit einem kleineren Bild oder ohne Foto.');
 				return;
 			}
 
-			printWindow.document.open();
-			printWindow.document.write(`
-				<!DOCTYPE html>
-				<html lang="de">
-				<head>
-					<meta charset="UTF-8" />
-					<title>Krankmeldung</title>
-					<style>
-						body { font-family: Arial, sans-serif; padding: 20px; margin: 0; }
-						.logo-container { text-align: right; margin-bottom: 10px; }
-						.logo-container img { height: 80px; max-width: 200px; }
-						h1, h2 { text-align: center; margin: 5px 0; }
-						.summary-box {
-							border: 2px solid #000;
-							background-color: #ffffff;
-							padding: 10px 20px;
-							max-width: 500px;
-							margin: 20px auto;
-							box-sizing: border-box;
-						}
-						.summary-box p {
-							display: flex;
-							align-items: baseline;
-							flex-wrap: wrap;
-							margin: 3px 0;
-						}
-						.summary-box p span {
-							flex-basis: 150px;
-							font-weight: normal;
-							padding-right: 10px;
-						}
-						.summary-box p b {
-							flex-grow: 1;
-							font-weight: bold;
-							word-break: break-word;
-						}
-						.summary-image-container {
-							width: 100%;
-							max-width: 350px;
-							margin: 10px auto;
-							text-align: center;
-						}
-						.summary-image-container img {
-							max-width: 100%;
-							max-height: 350px;
-							object-fit: contain;
-						}
-						@media print {
-							@page { size: A4; margin: 10mm; }
-						}
-					</style>
-				</head>
-				<body>
-					<div class="logo-container">
-						<img src="https://images.seeklogo.com/logo-png/54/2/motherson-logo-png_seeklogo-544537.png" alt="Firmenlogo" />
-					</div>
-					<h1>Krankmeldung</h1>
-					<h2>Informationen des Mitarbeiters</h2>
-					<div class="summary-box">${summaryHTML}</div>
-				</body>
-				</html>
-			`);
-			printWindow.document.close();
+			const printUrl = new URL('print.html', window.location.href).href;
+			const printWindow = window.open(printUrl, '_blank');
 
-			// Erst drucken, wenn der Inhalt (v.a. das Logo-Bild) vollständig geladen ist
-			printWindow.onload = function () {
-				printWindow.focus();
-				printWindow.print();
-			};
+			if (!printWindow) {
+				alert('Bitte erlauben Sie Pop-ups für diese Seite, um Drucken/Teilen zu nutzen.');
+			}
+		}
+
+		function printSummary() {
+			openPrintPage();
 		}
 
 		// Function to create and show the options popup
@@ -1031,22 +976,10 @@
 		}
 
 		// Function to handle sharing
+		// Öffnet ebenfalls print.html in echtem Safari (siehe openPrintPage) – dort steht ein
+		// eigener "Teilen"-Button (navigator.share) zur Verfügung, der dort zuverlässig funktioniert.
 		function shareSummary() {
-			const summaryText = document.getElementById('summary').innerText;
-			if (navigator.share) {
-				navigator.share({
-					title: 'Krankmeldung Zusammenfassung',
-					text: summaryText,
-				}).then(() => {
-					console.log('Zusammenfassung geteilt!');
-				}).catch((error) => {
-					console.error('Fehler beim Teilen:', error);
-					alert('Teilen fehlgeschlagen oder abgebrochen.');
-				});
-			} else {
-				// Fallback for browsers that do not support navigator.share
-				alert('Ihr Browser unterstützt die Teilen-Funktion nicht direkt. Bitte kopieren Sie den Text manuell:\n\n' + summaryText);
-			}
+			openPrintPage();
 		}
 
 		// Function to restart the form
